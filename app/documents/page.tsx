@@ -123,13 +123,13 @@ export default function DocumentsPage() {
           <ScanLine className="size-4" />
           {docHints.ocrButtonLabel}
         </Button>
-        <Button variant="outline" asChild className="min-h-11">
+        <Button variant="secondary" asChild className="min-h-11">
           <Link href={withIndustryQuery("/candidates?view=pipeline", industry)}>
             {profile.statusLabels.document_blocked}の{profile.labels.candidate}を見る
           </Link>
         </Button>
         {scanFailed ? (
-          <Button variant="outline" onClick={runScan} className="min-h-11">
+          <Button variant="secondary" onClick={runScan} className="min-h-11">
             再試行して同期を復帰
           </Button>
         ) : null}

@@ -157,8 +157,9 @@ function createAnonymizedCandidate(
 ): Candidate {
   const no = String(index + 1).padStart(2, "0");
   const demoName = demoCandidateNames[index % demoCandidateNames.length];
-  const mappedClientId = candidate.plannedAssignment
-    ? clientIdMap.get(candidate.plannedAssignment.clientId) ?? candidate.plannedAssignment.clientId
+  const plannedClientId = candidate.plannedAssignment?.clientId;
+  const mappedClientId = plannedClientId
+    ? clientIdMap.get(plannedClientId) ?? plannedClientId
     : undefined;
   return {
     ...candidate,
@@ -177,7 +178,7 @@ function createAnonymizedCandidate(
       email: `demo+candidate${no}@example.com`,
       phone: "000-0000-0000",
     },
-    plannedAssignment: candidate.plannedAssignment
+    plannedAssignment: candidate.plannedAssignment && mappedClientId
       ? {
           ...candidate.plannedAssignment,
           clientId: mappedClientId,
