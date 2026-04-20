@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
-import { MessageSquare } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { appTemplateConfig } from "@/lib/app-template-config";
@@ -25,6 +25,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const profile = getIndustryProfile(industry);
   const [secretOpen, setSecretOpen] = useState(false);
   const [secretModalKey, setSecretModalKey] = useState(0);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const tapCountRef = useRef(0);
   const lastTapRef = useRef(0);
 
@@ -56,11 +57,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     "/revenue": profile.labels.revenue,
     "/more": "その他",
   };
+  const desktopNavItems: Array<{
+    href: string;
+    label: string;
+    icon: keyof typeof templateNavIcons;
+  }> = [
+    { href: "/", label: "採用ダッシュボード", icon: "LayoutDashboard" },
+    { href: "/candidates", label: "候補者一覧", icon: "Users" },
+    { href: "/clients", label: "求人案件", icon: "Building2" },
+    { href: "/matching", label: "AIマッチング", icon: "ClipboardList" },
+    { href: "/documents", label: "応募書類", icon: "FileText" },
+    { href: "/operations", label: "採用オペレーション", icon: "Clock" },
+    { href: "/revenue", label: "採用KPI", icon: "TrendingUp" },
+    { href: "/knowledge", label: "ナレッジAI", icon: "Sparkles" },
+    { href: "/messages", label: "メッセージ", icon: "MessageSquare" },
+    { href: "/field-reports", label: "レポート自動作成", icon: "FileText" },
+    { href: "/more", label: "目的別ショートカット", icon: "MoreHorizontal" },
+  ];
 
   return (
     <div className="flex min-h-full flex-col">
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4">
+        <div className="mx-auto flex h-14 w-full max-w-[1440px] items-center justify-between gap-4 px-4">
           <div className="flex min-w-0 items-center gap-2 shrink-0">
             <button
               type="button"
@@ -92,7 +110,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={href}
                   href={withIndustryQuery(href, industry)}
                   className={cn(
-                    "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors",
+                    "hidden items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors",
                     active
                       ? "bg-surface text-primary"
                       : "text-muted hover:text-foreground hover:bg-surface/80"
@@ -124,9 +142,64 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="h-0.5 w-full bg-primary" aria-hidden />
       </header>
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pb-24 pt-6 md:pb-8">
-        {children}
-      </main>
+      <div className="mx-auto flex w-full max-w-[1440px] flex-1 gap-4 px-4 pb-24 pt-6 md:pb-8">
+        <aside
+          className={cn(
+            "hidden md:block",
+            sidebarCollapsed ? "w-20" : "w-64"
+          )}
+        >
+          <div className="sticky top-20 rounded-xl border border-border bg-card p-2">
+            <div className="mb-2 flex items-center justify-between px-2">
+              {!sidebarCollapsed ? (
+                <p className="text-xs font-semibold text-muted">メニュー</p>
+              ) : (
+                <span />
+              )}
+              <button
+                type="button"
+                onClick={() => setSidebarCollapsed((prev) => !prev)}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border text-muted hover:bg-surface hover:text-foreground"
+                aria-label={sidebarCollapsed ? "メニューを展開" : "メニューを折りたたむ"}
+              >
+                {sidebarCollapsed ? (
+                  <ChevronRight className="size-4" />
+                ) : (
+                  <ChevronLeft className="size-4" />
+                )}
+              </button>
+            </div>
+            <nav className="space-y-1">
+              {desktopNavItems.map(({ href, label, icon }) => {
+                const Icon = templateNavIcons[icon];
+                const active =
+                  href === "/"
+                    ? pathname === "/"
+                    : pathname === href || pathname.startsWith(href + "/");
+                return (
+                  <Link
+                    key={href}
+                    href={withIndustryQuery(href, industry)}
+                    className={cn(
+                      "flex items-center rounded-lg px-2.5 py-2 text-sm transition-colors",
+                      sidebarCollapsed ? "justify-center" : "gap-2.5",
+                      active
+                        ? "bg-surface text-primary"
+                        : "text-muted hover:bg-surface hover:text-foreground"
+                    )}
+                    title={sidebarCollapsed ? label : undefined}
+                  >
+                    <Icon className="size-4 shrink-0" />
+                    {!sidebarCollapsed ? <span className="truncate">{label}</span> : null}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        </aside>
+
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
 
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 pb-safe backdrop-blur md:hidden">
         <div className="mx-auto flex max-w-lg items-stretch justify-around">
