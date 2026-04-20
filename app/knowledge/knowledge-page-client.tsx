@@ -60,10 +60,11 @@ export function KnowledgePageClient({ industry }: Props) {
       <TemplatePageHeader title="面接評価品質管理" description={hints.pageSubtitle} />
       <div className="flex flex-wrap items-center gap-2">
         <DemoCompleteButton
-          label="評価レビューを確定"
+          label="品質確認を完了して次へ進む"
           patch={{
             knowledgeNoteId: `knowledge-${state.adviceRevision + 1}`,
             adviceRevision: state.adviceRevision + 1,
+            qualityAlertLevel: "low",
             uiStates: { knowledgeSync: "success" },
           }}
           successMessage="評価レビューを確定しました"
@@ -91,7 +92,7 @@ export function KnowledgePageClient({ industry }: Props) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <CheckSquare className="size-5 text-primary" />
-            評価品質チェックリスト
+            品質アラートキュー（優先対応）
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -153,7 +154,7 @@ export function KnowledgePageClient({ industry }: Props) {
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button variant="secondary" size="sm" asChild>
-            <Link href={withIndustryQuery("/messages", industry)}>評価差分を通知</Link>
+            <Link href={withIndustryQuery("/matching", industry)}>AIマッチング</Link>
           </Button>
           <Button variant="secondary" size="sm" asChild>
             <Link href={withIndustryQuery("/candidates", industry)}>候補者へ戻る</Link>

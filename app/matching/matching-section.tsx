@@ -111,7 +111,7 @@ function ClientMatchingCard({
               </div>
               <div className="mt-3">
                 <DemoCompleteButton
-                  label="この提案を確定"
+                  label="提案を確定して次へ進む"
                   patch={{
                     selectedCandidateId: candidate.id,
                     selectedClientId: clientId,
@@ -194,10 +194,19 @@ export function MatchingSection({ industry }: Props) {
   const isMobile = useMobile();
   const data = getIndustryDemoData(industry);
   const emptyState = getIndustryPageHints(industry).matching.emptyState;
+  const totalClients = data.clients.length;
 
   return (
     <div className="space-y-8">
       <DemoStateBridge page="matching" highlightedKpiKeys={["proposalCycleHours"]} />
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">提案候補比較（MUST / WANT / GAP）</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted">
+          {totalClients}社の提案候補を表示中。各社で1名ずつ確定してください。
+        </CardContent>
+      </Card>
       {data.clients.map((cl, i) => {
         const top = data.getMatchesForClient(cl.id).slice(0, 3);
         return (

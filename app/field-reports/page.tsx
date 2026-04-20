@@ -52,9 +52,10 @@ export default async function FieldReportsPage({ searchParams }: PageProps) {
 
       <div className="flex flex-wrap items-center gap-2">
         <DemoCompleteButton
-          label="週次レポートを生成"
+          label="週次レポートを生成して共有する"
           patch={{
             uiStates: { proposalGeneration: "success" },
+            reportSubmissionStatus: "generated",
           }}
           successMessage="週次レポートを生成しました"
         />
@@ -101,7 +102,7 @@ export default async function FieldReportsPage({ searchParams }: PageProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <FileStack className="size-5 text-primary" />
-            自動生成レポート一覧
+            共有待ちレポート
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">

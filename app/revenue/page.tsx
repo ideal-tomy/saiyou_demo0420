@@ -72,6 +72,24 @@ export default async function RevenuePage({ searchParams }: PageProps) {
         description="月次売上・紹介料回収・返金リスク・CAC・損益分岐のデモダッシュボード（数値はダミー／クライアント加重は実データ連動）"
       />
       <DemoKpiStrip keys={["grossMarginImpactManYen", "proposalCycleHours"]} />
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">今週の重点案件（粗利とリスク）</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <p className="text-muted">
+            返金リスク上位候補のフォローを優先し、粗利インパクトの悪化を防ぎます。
+          </p>
+          {refundItems[0] ? (
+            <Link
+              href={withIndustryQuery(`/candidates/${refundItems[0].candidateId}`, industry)}
+              className="text-primary underline-offset-2 hover:underline"
+            >
+              最優先候補を確認する
+            </Link>
+          ) : null}
+        </CardContent>
+      </Card>
 
       <TemplateKpiGrid>
         <Card>

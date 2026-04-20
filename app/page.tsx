@@ -84,9 +84,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">今日やる3件（Next Best Action）</CardTitle>
+          <CardTitle className="text-base">本日優先アクション3件（Next Best Action）</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          <p className="text-xs text-muted">
+            算出基準: 停滞日数・期限・連絡状況。上から順に対応してください。
+          </p>
           {nextActions.map((candidate, index) => (
             <div
               key={candidate.id}
@@ -108,7 +111,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 href={withIndustryQuery(`/candidates/${candidate.id}`, industry)}
                 className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
-                {candidate.actionPlan?.primaryAction}
+                {index + 1}位を対応する
               </Link>
             </div>
           ))}
@@ -217,7 +220,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   <ul className="min-h-0 flex-1 space-y-1 text-xs text-muted">
                     {data.clients.slice(0, 3).map((c) => (
                       <li key={c.id} className="truncate leading-tight">
-                        {c.tradeNameJa} — 空き {c.operations.openSlots}
+                        {c.tradeNameJa} — 募集人数 {c.operations.openSlots}
                       </li>
                     ))}
                   </ul>

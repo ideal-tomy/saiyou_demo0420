@@ -19,7 +19,7 @@ export default async function MatchingPage({ searchParams }: PageProps) {
     <TemplatePageStack>
       <TemplatePageHeader
         title={profile.labels.matching}
-        description={profile.matchingDescription}
+        description={`${profile.matchingDescription} 提案候補を比較し、1名を確定して次工程へ進めます。`}
       />
       <MatchingSection industry={industry} />
     </TemplatePageStack>

@@ -54,6 +54,9 @@ export default async function CandidateDetailPage({
       { step: "最終面談", at: "2026-04-18", status: "in_progress" as const },
     ];
   const actionLabel = c.actionPlan?.primaryAction ?? "次アクションを確定";
+  const tabPanelFrameClass =
+    "h-[65vh] min-h-[520px] max-h-[760px] overflow-y-auto rounded-xl border border-border bg-background";
+  const tabPanelCardClass = "h-full border-0 shadow-none";
 
   return (
     <TemplatePageStack>
@@ -119,6 +122,37 @@ export default async function CandidateDetailPage({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">提案判断サマリー</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <p className="text-muted">
+              本日の判断: {assigned ? "提案先候補あり" : "提案先要再計算"}
+            </p>
+            {match ? (
+              <div className="rounded-lg border border-border bg-surface p-3">
+                <p className="text-xs text-muted">適合率</p>
+                <p className="text-2xl font-bold text-primary">{match.pct}%</p>
+                <p className="mt-1 text-xs text-muted">{match.reason}</p>
+              </div>
+            ) : (
+              <div className="rounded-lg border border-border bg-surface p-3 text-xs text-muted">
+                提案候補が未設定です。マッチング画面で再抽出してください。
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="secondary" asChild>
+                <Link href={withIndustryQuery("/matching", industry)}>提案候補を再抽出</Link>
+              </Button>
+              {c.documentAlertJa ? (
+                <Button size="sm" variant="secondary" asChild>
+                  <Link href={withIndustryQuery("/documents", industry)}>書類を確認</Link>
+                </Button>
+              ) : null}
+            </div>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle className="text-base">選考履歴</CardTitle>
@@ -192,8 +226,9 @@ export default async function CandidateDetailPage({
           <TabsTrigger value="ai">{cd.tabAi}</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="basic">
-          <Card>
+        <TabsContent value="basic" className="animate-in fade-in-0 duration-200">
+          <div className={tabPanelFrameClass}>
+          <Card className={tabPanelCardClass}>
             <CardHeader>
               <CardTitle className="text-base">{cd.profileCardTitle}</CardTitle>
             </CardHeader>
@@ -286,10 +321,12 @@ export default async function CandidateDetailPage({
               </div>
             </CardContent>
           </Card>
+          </div>
         </TabsContent>
 
-        <TabsContent value="docs">
-          <Card>
+        <TabsContent value="docs" className="animate-in fade-in-0 duration-200">
+          <div className={tabPanelFrameClass}>
+          <Card className={tabPanelCardClass}>
             <CardHeader>
               <CardTitle className="text-base">{cd.docsCardTitle}</CardTitle>
             </CardHeader>
@@ -308,10 +345,12 @@ export default async function CandidateDetailPage({
               <p className="text-xs text-muted">{cd.docsOcrNote}</p>
             </CardContent>
           </Card>
+          </div>
         </TabsContent>
 
-        <TabsContent value="history">
-          <Card>
+        <TabsContent value="history" className="animate-in fade-in-0 duration-200">
+          <div className={tabPanelFrameClass}>
+          <Card className={tabPanelCardClass}>
             <CardHeader>
               <CardTitle className="text-base">{cd.historyCardTitle}</CardTitle>
             </CardHeader>
@@ -345,10 +384,12 @@ export default async function CandidateDetailPage({
               )}
             </CardContent>
           </Card>
+          </div>
         </TabsContent>
 
-        <TabsContent value="ai">
-          <Card>
+        <TabsContent value="ai" className="animate-in fade-in-0 duration-200">
+          <div className={tabPanelFrameClass}>
+          <Card className={tabPanelCardClass}>
             <CardHeader>
               <CardTitle className="text-base">{cd.aiCardTitle}</CardTitle>
             </CardHeader>
@@ -383,6 +424,7 @@ export default async function CandidateDetailPage({
               <p className="text-xs text-muted">{cd.aiFooterNote}</p>
             </CardContent>
           </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </TemplatePageStack>

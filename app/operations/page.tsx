@@ -49,6 +49,45 @@ export default async function OperationsPage({ searchParams }: PageProps) {
       badge: "再調整",
     },
   ] as const;
+  const weekDays = ["月", "火", "水", "木", "金", "土", "日"] as const;
+  const calendarRows = [
+    {
+      day: "4/21",
+      weekday: "月",
+      slots: [
+        { time: "10:00", label: "山田 太郎 / 一次面接", type: "interview" },
+        { time: "14:00", label: "青葉ソリューションズ 面接枠", type: "client" },
+      ],
+      interviewer: "面接官A: 13:00-18:00 空き",
+    },
+    {
+      day: "4/22",
+      weekday: "火",
+      slots: [
+        { time: "11:00", label: "佐藤 美咲 / 最終面接", type: "interview" },
+        { time: "16:30", label: "みらいキャリアデザイン 面接枠", type: "client" },
+      ],
+      interviewer: "面接官B: 10:00-12:00 空き",
+    },
+    {
+      day: "4/23",
+      weekday: "水",
+      slots: [{ time: "09:30", label: "高橋 健 / カジュアル面談", type: "interview" }],
+      interviewer: "面接官C: 15:00-19:00 空き",
+    },
+    {
+      day: "4/24",
+      weekday: "木",
+      slots: [{ time: "13:00", label: "フロントラインワークス 面接枠", type: "client" }],
+      interviewer: "面接官A: 9:00-11:30 空き",
+    },
+    {
+      day: "4/25",
+      weekday: "金",
+      slots: [{ time: "15:00", label: "面接予備枠（再調整用）", type: "buffer" }],
+      interviewer: "面接官B: 13:00-17:00 空き",
+    },
+  ] as const;
 
   return (
     <TemplatePageStack>
@@ -64,9 +103,11 @@ export default async function OperationsPage({ searchParams }: PageProps) {
 
       <div className="flex flex-wrap items-center gap-2">
         <DemoCompleteButton
-          label="面接枠を確定"
+          label="最優先案件の面接枠を確定する"
           patch={{
             uiStates: { proposalGeneration: "success" },
+            opsHealthScore: 84,
+            followReasonLabel: "日程調整を確定",
           }}
           successMessage="面接枠の確定を反映しました"
         />
@@ -79,27 +120,61 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         </Button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {hints.operations.kpiTiles.map((k) => (
-          <Card key={k.label} className="min-h-[112px]">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted">{k.label}</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-3xl font-bold tabular-nums">{k.value}</p>
-              {k.sub ? (
-                <p className="mt-1 text-xs text-muted">{k.sub}</p>
-              ) : null}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">面接日程カレンダー（デモ）</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted">
+            {weekDays.map((day) => (
+              <div key={day} className="rounded-md bg-surface py-1">
+                {day}
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            {calendarRows.map((row) => (
+              <div key={`${row.day}-${row.weekday}`} className="rounded-lg border border-border p-3">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-semibold">
+                    {row.day}（{row.weekday}）
+                  </p>
+                  <p className="text-xs text-muted">{row.interviewer}</p>
+                </div>
+                <div className="space-y-1.5">
+                  {row.slots.map((slot) => (
+                    <div key={`${row.day}-${slot.time}-${slot.label}`} className="flex items-center gap-2 text-sm">
+                      <span className="w-16 shrink-0 text-xs font-medium text-muted">{slot.time}</span>
+                      <Badge
+                        variant={
+                          slot.type === "interview"
+                            ? "success"
+                            : slot.type === "client"
+                              ? "warning"
+                              : "secondary"
+                        }
+                      >
+                        {slot.type === "interview"
+                          ? "候補者面談"
+                          : slot.type === "client"
+                            ? "企業枠"
+                            : "予備枠"}
+                      </Badge>
+                      <span className="truncate">{slot.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <CalendarClock className="size-5 text-primary" />
-            要調整リスト
+            期限順オペレーションキュー
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">

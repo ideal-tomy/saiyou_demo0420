@@ -8,7 +8,7 @@ import { GitBranch, Search } from "lucide-react";
 import type { Candidate, JlptLevel } from "@data/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -101,6 +101,13 @@ export function CandidatesSection() {
       : candidates;
     return target.slice(0, 5);
   }, [candidates, selectedPipelineStatus]);
+  const priorityCandidates = useMemo(
+    () =>
+      [...candidates]
+        .sort((a, b) => (a.actionPlan?.dueDate ?? "").localeCompare(b.actionPlan?.dueDate ?? ""))
+        .slice(0, 3),
+    [candidates],
+  );
 
   function stagnationDays(candidate: Candidate): number {
     return candidate.pipelineStatus === "document_blocked"
@@ -113,9 +120,11 @@ export function CandidatesSection() {
   }
 
   function openCandidate(c: Candidate) {
+    const priorityRank = priorityCandidates.findIndex((row) => row.id === c.id);
     patchState({
       selectedCandidateId: c.id,
       followReasonLabel: "候補者一覧から優先選定",
+      priorityRank: priorityRank >= 0 ? priorityRank + 1 : null,
       lastActionAt: new Date().toISOString(),
     });
     if (isMobile) {
@@ -227,6 +236,32 @@ export function CandidatesSection() {
         }}
         successMessage="候補者選定を完了しました"
       />
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">本日優先フォロー3名</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {priorityCandidates.map((candidate, idx) => (
+            <div
+              key={candidate.id}
+              className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="text-sm font-medium">
+                  {idx + 1}. {candidate.displayName}
+                </p>
+                <p className="text-xs text-muted">
+                  期限: {candidate.actionPlan?.dueDate ?? "-"} / 理由:{" "}
+                  {candidate.actionPlan?.primaryAction ?? "面談調整"}
+                </p>
+              </div>
+              <Button size="sm" className="min-h-10" onClick={() => openCandidate(candidate)}>
+                査定を進める
+              </Button>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Tabs
         value={tab}

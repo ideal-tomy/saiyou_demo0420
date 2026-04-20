@@ -109,7 +109,7 @@ export const appTemplateConfig = {
       { href: "/candidates", label: "候補者", icon: "Users" },
       { href: "/clients", label: "案件", icon: "Building2" },
       { href: "/revenue", label: "収益", icon: "TrendingUp" },
-      { href: "/more", label: "その他", icon: "MoreHorizontal" },
+      { href: "/more", label: "目的別", icon: "MoreHorizontal" },
     ] satisfies TemplateNavItem[],
     /** メッセージ（ベル）リンク */
     showMessagesLink: true,

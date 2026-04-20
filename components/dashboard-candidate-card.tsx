@@ -90,7 +90,7 @@ export function DashboardCandidateCard({
               )}
             >
               <span className="text-xs font-semibold text-primary">
-                今日の推奨トップ5
+                本日優先フォロー5名
               </span>
               <ChevronDown
                 className={cn(

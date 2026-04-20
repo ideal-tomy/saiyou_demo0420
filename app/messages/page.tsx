@@ -21,10 +21,22 @@ function sentimentBadge(s?: DemoMessage["sentiment"]) {
 export default function MessagesPage() {
   const { patchState } = useDemoState();
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const rankedMessages = [...demoMessages].sort((a, b) => {
+    const rank = (value?: DemoMessage["sentiment"]) =>
+      value === "danger" ? 0 : value === "warning" ? 1 : 2;
+    return rank(a.sentiment) - rank(b.sentiment);
+  });
 
   function toggle(id: string) {
+    const target = demoMessages.find((message) => message.id === id);
     patchState({
       uiStates: { translation: "success" },
+      messageRiskLevel:
+        target?.sentiment === "danger"
+          ? "danger"
+          : target?.sentiment === "warning"
+            ? "warning"
+            : "normal",
       lastActionAt: new Date().toISOString(),
     });
     setRevealed((r) => ({ ...r, [id]: !r[id] }));
@@ -35,25 +47,24 @@ export default function MessagesPage() {
       <DemoStateBridge page="messages" highlightedKpiKeys={["timeSavedMinutesPerDay"]} />
       <div>
         <h1 className="text-2xl font-semibold text-primary-alt">
-          多言語メッセージ
+          メッセージ優先対応
         </h1>
         <p className="mt-1 text-sm text-muted">
-          非日本語の原文と日本語（デモ）。50 件は{" "}
-          <code className="rounded bg-surface px-1 text-xs">lib/demo-messages.ts</code>{" "}
-          に追記してください。
+          危険/警告メッセージを優先順で表示します。訳文と要約を見て対応方針を確定してください。
         </p>
       </div>
       <DemoCompleteButton
-        label="翻訳対応を完了"
+        label="優先対応を完了"
         patch={{
           followReasonLabel: "メッセージ優先対応",
+          messageResolvedAt: new Date().toISOString(),
           uiStates: { translation: "success" },
         }}
         successMessage="翻訳と優先度判定の完了を記録しました"
       />
 
       <ul className="space-y-3">
-        {demoMessages.map((m) => (
+        {rankedMessages.map((m) => (
           <li key={m.id}>
             <Card>
               <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 pb-2">
@@ -90,7 +101,7 @@ export default function MessagesPage() {
                   onClick={() => toggle(m.id)}
                 >
                   <Languages className="size-4" />
-                  {revealed[m.id] ? "訳を隠す" : "AI 翻訳を表示（デモ）"}
+                  {revealed[m.id] ? "訳を隠す" : "訳文を表示して対応を判断する"}
                 </Button>
               </CardContent>
             </Card>

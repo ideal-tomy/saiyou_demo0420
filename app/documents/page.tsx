@@ -107,13 +107,14 @@ export default function DocumentsPage() {
 
       <div className="flex flex-wrap gap-3">
         <DemoCompleteButton
-          label="不備解消を完了"
+          label="不備復帰を完了して次へ進む"
           patch={{
             documentCheckStatus: "ok",
             uiStates: {
               ...state.uiStates,
               documentScan: "success",
             },
+            followReasonLabel: "書類不備を復帰",
           }}
           successMessage="不備解消から進行復帰を反映しました"
           className="min-h-11"
@@ -175,7 +176,7 @@ export default function DocumentsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <FileText className="size-5" />
-              要対応不備リスト
+              不備復帰キュー（期限順）
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">

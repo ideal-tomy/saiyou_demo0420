@@ -137,7 +137,7 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
     home: {
       matchingMobileSubtitle: "案件別の次アクション候補",
       matchingDesktopTeaser:
-        "取引先ごとに、いま提案すべき候補者を特定し、確認質問まで提示します。",
+        "取引先ごとに、いま提案すべき候補者を特定し、確認質問まで提示してそのまま確定できます。",
       matchingDesktopReason:
         "Must一致率・Want一致率・不足要件を確認し、提案判断を1画面で完了します。",
       documentsMobileSubtitle: "書類確認と不備解消",

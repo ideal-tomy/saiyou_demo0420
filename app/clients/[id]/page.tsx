@@ -143,13 +143,13 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
             <Separator />
             <dl className="grid grid-cols-2 gap-2">
               <div>
-                <dt className="text-muted text-xs">稼働中</dt>
+                <dt className="text-muted text-xs">紹介実績</dt>
                 <dd className="font-semibold">
                   {client.operations.currentAssignees} 名
                 </dd>
               </div>
               <div>
-                <dt className="text-muted text-xs">欠員枠</dt>
+                <dt className="text-muted text-xs">募集人数</dt>
                 <dd className="font-semibold text-warning">
                   {client.operations.openSlots} 名
                 </dd>
@@ -177,7 +177,7 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Sparkles className="size-5 text-primary" />
-            AI おすすめ候補（デモ）
+            提案優先候補（比較）
           </CardTitle>
           <Badge variant="ai">タグ照合</Badge>
         </CardHeader>
@@ -208,6 +208,13 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
                       {block}
                     </p>
                   ))}
+                </div>
+                <div className="mt-3">
+                  <Button size="sm" variant="secondary" asChild>
+                    <Link href={withIndustryQuery("/matching", industry)}>
+                      提案を確定して次へ進む
+                    </Link>
+                  </Button>
                 </div>
               </li>
             ))}
