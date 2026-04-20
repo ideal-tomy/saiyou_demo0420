@@ -16,7 +16,7 @@ export function DashboardExtensionRegion({ industry }: Props) {
   if (slots.length === 0) return null;
 
   return (
-    <div className="col-span-full grid min-w-0 grid-cols-2 gap-1.5 md:grid-cols-4 md:gap-4 xl:gap-6">
+    <div className="col-span-full grid min-w-0 grid-cols-1 gap-1.5 sm:grid-cols-2 md:grid-cols-3 md:gap-4 xl:gap-6">
       {slots.map((slot) => {
         const href = withIndustryQuery(slot.path, industry);
         const Icon = slot.iconComponent;

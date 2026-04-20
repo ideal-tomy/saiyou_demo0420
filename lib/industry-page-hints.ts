@@ -110,30 +110,29 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       emptyState: "案件に紐づく推奨候補がまだありません（デモ）",
     },
     operations: {
-      csvHint: "勤怠 CSV は次期で取込予定（デモ）",
+      csvHint: "面接枠を確定するための調整ハブ。未調整案件を期限順で処理します。",
       kpiTiles: [
-        { label: "今月稼働", value: "142", sub: "名（ダミー）" },
-        { label: "書類要フォロー", value: "連動", sub: "候補者画面と同期" },
-        { label: "未請求工数", value: "38", sub: "h（デモ）" },
-        { label: "最終面談予定", value: "5", sub: "件 30日以内" },
+        { label: "未調整件数", value: "6件", sub: "本日中に3件確定" },
+        { label: "24h以内確定件数", value: "4件", sub: "前日比 +1件" },
+        { label: "平均調整時間", value: "19h", sub: "目標 24h 以内" },
       ],
       timeline: [
-        { title: "青葉ソリューションズ — 欠員補充の承認待ち", time: "今日 14:20", badge: "要対応" },
-        { title: "書類不備フォロー SMS 送信", time: "昨日", badge: "完了" },
-        { title: "請求締めデータ生成（バッチ）", time: "4/1 0:00", badge: "予定" },
+        { title: "山田 太郎 — 一次面接の日程提示", time: "今日 14:20", badge: "要対応" },
+        { title: "佐藤 美咲 — 最終面接の時間確定", time: "今日 16:10", badge: "期限注意" },
+        { title: "高橋 健 — 候補枠再提案", time: "明日 10:00", badge: "再調整" },
       ],
     },
     knowledge: {
       pageSubtitle:
-        "採用評価観点や面談Q&Aの一次回答を RAG で想定。デモは静的 FAQ と擬似チャットです。",
+        "面接評価の未入力・根拠不足・評価ブレを検知し、採用判断の品質を標準化するページです。",
       faqs: [
-        { q: "面談評価が割れた時の判断基準は？", a: "職務要件の必須項目を軸に再評価する想定です。" },
-        { q: "書類選考で重視する項目は？", a: "直近実績、職務要約、業界経験の3点を基準にする想定です（デモ文）。" },
-        { q: "辞退リスクの早期検知は？", a: "連絡間隔と選考停滞日数をもとにフォロー優先度を上げる想定です。" },
+        { q: "評価未入力はどう検知する？", a: "必須項目の欠損を自動抽出し、レビュー対象に積み上げます。" },
+        { q: "評価が割れた時の判断基準は？", a: "MUST要件の一致根拠を優先し、追加質問を提案します。" },
+        { q: "面接官の甘辛差は見える化できる？", a: "面接官別の評価傾向と提出速度を一覧で可視化します。" },
       ],
-      chatSeeds: ["面談評価の観点を教えて", "候補者フォロー文面を出して"],
+      chatSeeds: ["評価未入力を解消する", "評価ブレをレビューする"],
       staticReply:
-        "デモ応答: 該当する監理報告のテンプレは「書類管理」から参照する想定です。本番では社内ドキュメントを RAG 検索します。",
+        "面接評価品質のデモ応答: 必須項目記入率・提出遅延・評価ブレを同時に確認し、評価レビューを確定します。",
     },
     home: {
       matchingMobileSubtitle: "案件別の次アクション候補",
@@ -141,7 +140,7 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
         "取引先ごとに、いま提案すべき候補者を特定し、確認質問まで提示します。",
       matchingDesktopReason:
         "Must一致率・Want一致率・不足要件を確認し、提案判断を1画面で完了します。",
-      documentsMobileSubtitle: "書類確認と不備対応",
+      documentsMobileSubtitle: "書類確認と不備解消",
     },
     clients: { listCardEmphasis: "openSlots" },
     clientDetail: {
@@ -174,6 +173,32 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       aiFooterNote:
         "動画レジュメ解析・離職リスクは本番 AI 連携で拡張予定（デモは静的テキスト）。",
       showJlptBadge: true,
+    },
+    dashboardExtensionOverrides: {
+      attendanceBilling: {
+        title: "日程調整",
+        subtitle: "面接枠を確定する",
+        desktopTitle: "日程調整（拡張枠）",
+        desktopBody:
+          "未調整件数・期限・推奨枠を同時表示し、候補者と面接官の面接日程を最短で確定します。",
+        desktopCta: "面接枠を確定する",
+      },
+      knowledgeAi: {
+        title: "面接評価品質管理",
+        subtitle: "評価未入力を解消する",
+        desktopTitle: "面接評価品質管理（拡張枠）",
+        desktopBody:
+          "必須項目未記入・根拠不足・評価ブレを検知し、評価レビューを標準化します。",
+        desktopCta: "評価レビューを確定する",
+      },
+      fieldReports: {
+        title: "レポート自動作成",
+        subtitle: "週次サマリを共有する",
+        desktopTitle: "レポート自動作成（拡張枠）",
+        desktopBody:
+          "選考ログと評価コメントを要約して週次・月次レポートを自動生成し、PDF出力やSlack共有まで完結します。",
+        desktopCta: "週次サマリを共有する",
+      },
     },
   },
   "real-estate": {
@@ -435,16 +460,6 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       aiFooterNote:
         "ヒヤリハット要約・安全教育アラートは本番 AI 連携で拡張予定（デモは静的テキスト）。",
       showJlptBadge: true,
-    },
-    dashboardExtensionOverrides: {
-      fieldReports: {
-        title: "現場報告・写真",
-        subtitle: "未提出と確認場所を一元化（デモ）",
-        desktopTitle: "現場報告・写真ハブ（拡張枠）",
-        desktopBody:
-          "現場からの写真・日報をタスク単位で集約。送り忘れ・ファイル探索・取り違えを減らす想定です。アップロード時の自動命名・保存先ルールにも連携可能。",
-        desktopCta: "報告一覧へ",
-      },
     },
   },
   medical: {

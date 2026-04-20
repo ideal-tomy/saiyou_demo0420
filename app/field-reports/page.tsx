@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import { FileStack, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DemoCompleteButton } from "@/components/demo-complete-button";
 import { DemoStateBridge } from "@/components/demo-state-bridge";
 import {
   TemplatePageHeader,
   TemplatePageStack,
 } from "@/components/templates/layout-primitives";
-import { getIndustryProfile } from "@/lib/industry-profiles";
 import {
   getIndustryFromSearchParams,
   withIndustryQuery,
@@ -16,88 +17,117 @@ type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const demoRows = [
+const reportRows = [
   {
-    site: "現場K01",
-    task: "朝礼・KY 写真",
-    state: "未提出" as const,
-    due: "本日 7:00",
+    type: "週次",
+    period: "4/13 - 4/19",
+    generatedAt: "4/20 09:05",
+    sharedTo: "採用責任者 / 営業Mgr",
   },
   {
-    site: "現場K02",
-    task: "終業前パトロール",
-    state: "提出済" as const,
-    due: "昨日",
+    type: "月次",
+    period: "3/1 - 3/31",
+    generatedAt: "4/1 08:40",
+    sharedTo: "経営会議",
   },
   {
-    site: "現場K03",
-    task: "仮設足場全景",
-    state: "要再撮影" as const,
-    due: "期限超過",
+    type: "週次",
+    period: "4/6 - 4/12",
+    generatedAt: "4/13 09:10",
+    sharedTo: "採用責任者 / 現場リーダー",
   },
-];
+] as const;
 
 export default async function FieldReportsPage({ searchParams }: PageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const industry = getIndustryFromSearchParams(resolvedSearchParams);
-  const profile = getIndustryProfile(industry);
 
   return (
     <TemplatePageStack>
       <DemoStateBridge page="field-reports" highlightedKpiKeys={["followLeakageRate"]} />
       <TemplatePageHeader
-        title="報告・写真ハブ（デモ）"
-        description={`${profile.labels.client}や現場単位の提出タスクと証跡を一覧する想定です。送り忘れ・探索・取り違えを減らす「公式の確認場所」として使います。`}
+        title="レポート自動作成"
+        description="選考進捗と評価ログから週次・月次レポートを自動生成し、共有まで最短で完了させる画面です。"
       />
 
-      <div className="flex flex-wrap gap-2">
-        <Badge variant="danger">未提出 1</Badge>
-        <Badge variant="success">提出済 1</Badge>
-        <Badge variant="warning">要確認 1</Badge>
+      <div className="flex flex-wrap items-center gap-2">
+        <DemoCompleteButton
+          label="週次レポートを生成"
+          patch={{
+            uiStates: { proposalGeneration: "success" },
+          }}
+          successMessage="週次レポートを生成しました"
+        />
+        <Button variant="secondary" size="sm">
+          PDF出力
+        </Button>
+        <Button variant="secondary" size="sm" className="gap-1.5">
+          <Share2 className="size-4" />
+          Slack共有
+        </Button>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted">週次レポート生成数</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-3xl font-bold tabular-nums">12</p>
+            <p className="mt-1 text-xs text-muted">今週 / 自動生成</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted">未送信数</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-3xl font-bold tabular-nums">2</p>
+            <p className="mt-1 text-xs text-muted">本日中に共有推奨</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium text-muted">直近改善提案数</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-3xl font-bold tabular-nums">5</p>
+            <p className="mt-1 text-xs text-muted">AI抽出ハイライト</p>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">本日の提出タスク（ダミー）</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <FileStack className="size-5 text-primary" />
+            自動生成レポート一覧
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {demoRows.map((row) => (
+          {reportRows.map((row) => (
             <div
-              key={`${row.site}-${row.task}`}
-              className="flex flex-col gap-1 rounded-lg border border-border p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+              key={`${row.type}-${row.period}`}
+              className="grid gap-2 rounded-lg border border-border p-3 text-sm sm:grid-cols-[0.6fr_1fr_0.8fr_1fr]"
             >
-              <div>
-                <p className="font-medium">{row.site}</p>
-                <p className="text-muted">{row.task}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge
-                  variant={
-                    row.state === "未提出"
-                      ? "danger"
-                      : row.state === "提出済"
-                        ? "success"
-                        : "warning"
-                  }
-                >
-                  {row.state}
-                </Badge>
-                <span className="text-xs text-muted">{row.due}</span>
-              </div>
+              <p className="font-medium">{row.type}</p>
+              <p className="text-muted">対象期間: {row.period}</p>
+              <p className="text-muted">生成時刻: {row.generatedAt}</p>
+              <p className="text-muted">共有先: {row.sharedTo}</p>
             </div>
           ))}
         </CardContent>
       </Card>
 
       <p className="text-xs text-muted">
-        本番ではカメラアップロード・自動ファイル名・保存先ルール・サムネ一覧をここに集約する想定です。OCR や安全書類とは
+        本番では評価コメント要約・辞退理由集計・案件別改善提案を同時に生成し、報告品質を平準化します。書類チェックは
         <Link
           href={withIndustryQuery("/documents", industry)}
           className="mx-1 text-primary underline"
         >
           書類管理
         </Link>
-        と連携できます。
+        と連携します。
       </p>
 
       <p className="text-xs text-muted">
@@ -105,9 +135,9 @@ export default async function FieldReportsPage({ searchParams }: PageProps) {
           href={withIndustryQuery("/operations", industry)}
           className="text-primary underline"
         >
-          {profile.labels.operations}
+          日程調整
         </Link>
-        へ戻るショートカット。
+        へ戻って面接枠確定に進みます。
       </p>
     </TemplatePageStack>
   );
