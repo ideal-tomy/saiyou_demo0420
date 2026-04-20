@@ -107,12 +107,12 @@ export const appTemplateConfig = {
     bottomNav: [
       { href: "/", label: "Home", icon: "Home" },
       { href: "/candidates", label: "候補者", icon: "Users" },
-      { href: "/clients", label: "案件", icon: "Building2" },
-      { href: "/revenue", label: "収益", icon: "TrendingUp" },
+      { href: "/matching", label: "マッチング", icon: "ClipboardList" },
+      { href: "/operations", label: "実務", icon: "Clock" },
       { href: "/more", label: "目的別", icon: "MoreHorizontal" },
     ] satisfies TemplateNavItem[],
     /** メッセージ（ベル）リンク */
-    showMessagesLink: true,
+    showMessagesLink: false,
     /** 右下 FAB（OCR デモ等） */
     showDemoFab: true,
   },

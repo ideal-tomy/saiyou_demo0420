@@ -111,7 +111,7 @@ function ClientMatchingCard({
               </div>
               <div className="mt-3">
                 <DemoCompleteButton
-                  label="提案を確定して次へ進む"
+                  label="提案を確定"
                   patch={{
                     selectedCandidateId: candidate.id,
                     selectedClientId: clientId,
@@ -120,7 +120,7 @@ function ClientMatchingCard({
                     proposalDraftStatus: "ready",
                     uiStates: { proposalFlow: "success" },
                   }}
-                  successMessage="提案候補を確定しました"
+                  successMessage="提案候補を確定しました（次工程は下の導線から選択）"
                   className="min-h-11 w-full"
                 />
               </div>

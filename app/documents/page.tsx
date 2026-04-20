@@ -107,7 +107,7 @@ export default function DocumentsPage() {
 
       <div className="flex flex-wrap gap-3">
         <DemoCompleteButton
-          label="不備復帰を完了して次へ進む"
+          label="不備復帰を完了"
           patch={{
             documentCheckStatus: "ok",
             uiStates: {
@@ -116,7 +116,7 @@ export default function DocumentsPage() {
             },
             followReasonLabel: "書類不備を復帰",
           }}
-          successMessage="不備解消から進行復帰を反映しました"
+          successMessage="不備解消から進行復帰を反映しました（次工程は候補者確認）"
           className="min-h-11"
         />
         <Button onClick={runScan} className="gap-2 min-h-11" variant="secondary">
@@ -232,6 +232,20 @@ export default function DocumentsPage() {
           )}
         </SheetContent>
       </Sheet>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">次にやること</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2 text-sm">
+          <Link href={withIndustryQuery("/candidates?view=pipeline", industry)} className="text-primary underline-offset-2 hover:underline">
+            停滞候補の進行状況を確認する
+          </Link>
+          <span className="text-muted">/</span>
+          <Link href={withIndustryQuery("/matching", industry)} className="text-primary underline-offset-2 hover:underline">
+            提案候補を再確認する
+          </Link>
+        </CardContent>
+      </Card>
     </TemplatePageStack>
   );
 }

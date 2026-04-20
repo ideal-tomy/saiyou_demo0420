@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarCheck2, CalendarClock, Bell } from "lucide-react";
+import { ArrowLeft, CalendarCheck2, CalendarClock, Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -96,6 +96,12 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         opsHealthScore={82}
         highlightedKpiKeys={["followLeakageRate", "timeSavedMinutesPerDay"]}
       />
+      <Button variant="ghost" size="sm" asChild className="-ml-2 gap-1 self-start">
+        <Link href={withIndustryQuery("/", industry)}>
+          <ArrowLeft className="size-4" />
+          ダッシュボードへ戻る
+        </Link>
+      </Button>
       <TemplatePageHeader
         title="日程調整"
         description={hints.operations.csvHint}
@@ -241,6 +247,20 @@ export default async function OperationsPage({ searchParams }: PageProps) {
           </Card>
         </Link>
       </div>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">次にやること</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2 text-sm">
+          <Link href={withIndustryQuery("/knowledge", industry)} className="text-primary underline-offset-2 hover:underline">
+            面接評価品質を確認する
+          </Link>
+          <span className="text-muted">/</span>
+          <Link href={withIndustryQuery("/documents", industry)} className="text-primary underline-offset-2 hover:underline">
+            書類不備の復帰状況を確認する
+          </Link>
+        </CardContent>
+      </Card>
     </TemplatePageStack>
   );
 }

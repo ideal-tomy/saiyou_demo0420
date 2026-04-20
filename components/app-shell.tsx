@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { appTemplateConfig } from "@/lib/app-template-config";
-import { unreadDemoMessageCount } from "@/lib/demo-messages";
 import { DemoFab } from "@/components/demo-fab";
 import { templateNavIcons } from "@/components/template-nav-icons";
 import { getIndustryProfile } from "@/lib/industry-profiles";
@@ -20,7 +19,6 @@ const SECRET_TAP_COUNT = 5;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const unread = unreadDemoMessageCount();
   const { industry } = useIndustry();
   const profile = getIndustryProfile(industry);
   const [secretOpen, setSecretOpen] = useState(false);
@@ -53,8 +51,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const bottomNavLabelByHref: Record<string, string> = {
     "/": "Home",
     "/candidates": profile.labels.candidate,
-    "/clients": profile.labels.client,
-    "/revenue": profile.labels.revenue,
+    "/matching": profile.labels.matching,
+    "/operations": profile.labels.operations,
     "/more": "その他",
   };
   const desktopNavItems: Array<{
@@ -70,7 +68,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: "/operations", label: "採用オペレーション", icon: "Clock" },
     { href: "/revenue", label: "採用KPI", icon: "TrendingUp" },
     { href: "/knowledge", label: "ナレッジAI", icon: "Sparkles" },
-    { href: "/messages", label: "メッセージ", icon: "MessageSquare" },
     { href: "/field-reports", label: "レポート自動作成", icon: "FileText" },
     { href: "/more", label: "目的別ショートカット", icon: "MoreHorizontal" },
   ];
@@ -122,22 +119,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
-          {shell.showMessagesLink ? (
-            <Link
-              href={withIndustryQuery("/messages", industry)}
-              className="relative flex items-center gap-1 rounded-lg p-2 text-muted hover:bg-surface hover:text-foreground"
-              aria-label="メッセージ"
-            >
-              <MessageSquare className="size-5" />
-              {unread > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
-                  {unread}
-                </span>
-              )}
-            </Link>
-          ) : (
-            <div className="w-10 shrink-0" aria-hidden />
-          )}
+          <div className="w-10 shrink-0" aria-hidden />
         </div>
         <div className="h-0.5 w-full bg-primary" aria-hidden />
       </header>

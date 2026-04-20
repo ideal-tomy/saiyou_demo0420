@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   AlertTriangle,
+  ArrowLeft,
   ArrowDownRight,
   ArrowUpRight,
   CircleDollarSign,
@@ -10,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClientOnlyChart } from "@/components/client-only-chart";
 import { DemoKpiStrip } from "@/components/demo-kpi-strip";
@@ -67,6 +69,12 @@ export default async function RevenuePage({ searchParams }: PageProps) {
         page="revenue"
         highlightedKpiKeys={["grossMarginImpactManYen", "proposalCycleHours"]}
       />
+      <Button variant="ghost" size="sm" asChild className="-ml-2 gap-1 self-start">
+        <Link href={withIndustryQuery("/operations", industry)}>
+          <ArrowLeft className="size-4" />
+          採用オペレーションへ戻る
+        </Link>
+      </Button>
       <TemplatePageHeader
         title={profile.labels.revenue}
         description="月次売上・紹介料回収・返金リスク・CAC・損益分岐のデモダッシュボード（数値はダミー／クライアント加重は実データ連動）"
@@ -373,6 +381,20 @@ export default async function RevenuePage({ searchParams }: PageProps) {
           </CardContent>
         </Card>
       </TemplateTwoColumnGrid>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">次にやること</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2 text-sm">
+          <Link href={withIndustryQuery("/candidates", industry)} className="text-primary underline-offset-2 hover:underline">
+            返金リスク候補をフォローする
+          </Link>
+          <span className="text-muted">/</span>
+          <Link href={withIndustryQuery("/", industry)} className="text-primary underline-offset-2 hover:underline">
+            ダッシュボードで全体状況を確認する
+          </Link>
+        </CardContent>
+      </Card>
     </TemplatePageStack>
   );
 }
