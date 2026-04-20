@@ -6,10 +6,11 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const links = [
-  { href: "/messages", label: "メッセージ", icon: MessageSquare, desc: "シンハラ語デモ" },
+  { href: "/messages", label: "メッセージ", icon: MessageSquare, desc: "多言語翻訳デモ" },
   { href: "/matching", label: "マッチング", icon: ClipboardList, desc: "案件別提案" },
   { href: "/documents", label: "書類", icon: FileText, desc: "OCR・ステータス" },
   { href: "/knowledge", label: "ナレッジ", icon: Sparkles, desc: "AI FAQ（枠）" },
@@ -19,6 +20,7 @@ const links = [
 export default function MorePage() {
   return (
     <div className="space-y-6">
+      <DemoStateBridge page="more" />
       <div>
         <h1 className="text-2xl font-semibold text-primary-alt">その他</h1>
         <p className="mt-1 text-sm text-muted">モバイル用ショートカット</p>

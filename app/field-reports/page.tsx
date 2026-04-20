@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
 import {
   TemplatePageHeader,
   TemplatePageStack,
@@ -17,19 +18,19 @@ type PageProps = {
 
 const demoRows = [
   {
-    site: "〇〇ビル新築",
+    site: "現場K01",
     task: "朝礼・KY 写真",
     state: "未提出" as const,
     due: "本日 7:00",
   },
   {
-    site: "△△工場",
+    site: "現場K02",
     task: "終業前パトロール",
     state: "提出済" as const,
     due: "昨日",
   },
   {
-    site: "□□線工事",
+    site: "現場K03",
     task: "仮設足場全景",
     state: "要再撮影" as const,
     due: "期限超過",
@@ -43,6 +44,7 @@ export default async function FieldReportsPage({ searchParams }: PageProps) {
 
   return (
     <TemplatePageStack>
+      <DemoStateBridge page="field-reports" highlightedKpiKeys={["followLeakageRate"]} />
       <TemplatePageHeader
         title="報告・写真ハブ（デモ）"
         description={`${profile.labels.client}や現場単位の提出タスクと証跡を一覧する想定です。送り忘れ・探索・取り違えを減らす「公式の確認場所」として使います。`}

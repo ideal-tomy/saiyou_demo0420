@@ -12,6 +12,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClientOnlyChart } from "@/components/client-only-chart";
+import { DemoKpiStrip } from "@/components/demo-kpi-strip";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
 import {
   RevenueBreakevenChart,
   RevenueCacBreakdownChart,
@@ -61,10 +63,15 @@ export default async function RevenuePage({ searchParams }: PageProps) {
 
   return (
     <TemplatePageStack>
+      <DemoStateBridge
+        page="revenue"
+        highlightedKpiKeys={["grossMarginImpactManYen", "proposalCycleHours"]}
+      />
       <TemplatePageHeader
         title={profile.labels.revenue}
         description="月次売上・紹介料回収・返金リスク・CAC・損益分岐のデモダッシュボード（数値はダミー／クライアント加重は実データ連動）"
       />
+      <DemoKpiStrip keys={["grossMarginImpactManYen", "proposalCycleHours"]} />
 
       <TemplateKpiGrid>
         <Card>

@@ -9,14 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { DemoCompleteButton } from "@/components/demo-complete-button";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
+import { useDemoState } from "@/components/demo-state-context";
 import { TemplatePageHeader, TemplatePageStack } from "@/components/templates/layout-primitives";
 import { useIndustry } from "@/components/industry-context";
 import { getIndustryDemoData } from "@/lib/demo-data-selector";
 import { getIndustryPageHints } from "@/lib/industry-page-hints";
 import { getIndustryProfile } from "@/lib/industry-profiles";
 import { withIndustryQuery } from "@/lib/industry-selection";
+import { nextUiAsyncState } from "@/lib/ui-feedback";
 
 export default function DocumentsPage() {
+  const { state, patchState } = useDemoState();
   const { industry } = useIndustry();
   const profile = getIndustryProfile(industry);
   const hints = getIndustryPageHints(industry);
@@ -24,15 +29,57 @@ export default function DocumentsPage() {
   const data = getIndustryDemoData(industry);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [scanFailed, setScanFailed] = useState(false);
   const alerts = data.countDocumentAlerts();
 
   function runScan() {
+    const nextState = nextUiAsyncState(
+      state.uiStates.documentScan ?? "idle",
+      "start",
+    );
+    patchState({
+      documentCheckStatus: "checking",
+      uiStates: {
+        ...state.uiStates,
+        documentScan: nextState,
+      },
+      lastActionAt: new Date().toISOString(),
+    });
     setOpen(true);
     setLoading(true);
-    toast.info("OCR 処理中…（デモ）");
+    setScanFailed(false);
+    toast.info("書類を解析中です（デモ）");
     setTimeout(() => {
+      const shouldFail = state.documentCheckStatus !== "needs_retry" && alerts > 0;
+      if (shouldFail) {
+        patchState({
+          documentCheckStatus: "needs_retry",
+          uiStates: {
+            ...state.uiStates,
+            documentScan: nextUiAsyncState(state.uiStates.documentScan ?? "loading", "fail"),
+          },
+          lastActionAt: new Date().toISOString(),
+        });
+        setLoading(false);
+        setScanFailed(true);
+        toast.error("同期で競合が発生しました。再試行してください。");
+        return;
+      }
+      const resolvedState = nextUiAsyncState(
+        state.uiStates.documentScan ?? "loading",
+        "resolve",
+      );
+      patchState({
+        documentCheckStatus: "ok",
+        uiStates: {
+          ...state.uiStates,
+          documentScan: resolvedState,
+        },
+        lastActionAt: new Date().toISOString(),
+      });
       setLoading(false);
-      toast.success("抽出完了（デモ）");
+      setScanFailed(false);
+      toast.success("書類チェックが同期完了しました");
     }, 1000);
   }
 
@@ -42,6 +89,11 @@ export default function DocumentsPage() {
 
   return (
     <TemplatePageStack>
+      <DemoStateBridge
+        page="documents"
+        documentCheckStatus={state.documentCheckStatus}
+        highlightedKpiKeys={["followLeakageRate", "proposalCycleHours"]}
+      />
       <TemplatePageHeader
         title={`${profile.labels.documents}管理`}
         description={docHints.pageSubtitle}
@@ -57,6 +109,23 @@ export default function DocumentsPage() {
             {profile.statusLabels.document_blocked}の{profile.labels.candidate}を見る
           </Link>
         </Button>
+        {scanFailed ? (
+          <Button variant="outline" onClick={runScan} className="min-h-11">
+            再試行して同期を復帰
+          </Button>
+        ) : null}
+        <DemoCompleteButton
+          label="不備解消を完了"
+          patch={{
+            documentCheckStatus: "ok",
+            uiStates: {
+              ...state.uiStates,
+              documentScan: "success",
+            },
+          }}
+          successMessage="不備解消から進行復帰を反映しました"
+          className="min-h-11"
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

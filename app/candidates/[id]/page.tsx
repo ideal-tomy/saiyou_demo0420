@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
+import { DemoCompleteButton } from "@/components/demo-complete-button";
+import { DemoKpiStrip } from "@/components/demo-kpi-strip";
 import {
   TemplatePageHeader,
   TemplatePageStack,
@@ -45,6 +48,15 @@ export default async function CandidateDetailPage({
 
   return (
     <TemplatePageStack>
+      <DemoStateBridge
+        page="candidate-detail"
+        selectedCandidateId={c.id}
+        selectedClientId={assigned?.id ?? null}
+        recommendedClientIds={assigned ? [assigned.id] : []}
+        matchScore={match?.pct ?? null}
+        proposalDraftStatus={match ? "ready" : "idle"}
+        highlightedKpiKeys={["proposalCycleHours"]}
+      />
       <Button variant="ghost" size="sm" asChild className="-ml-2 gap-1 self-start">
         <Link href={withIndustryQuery("/candidates", industry)}>
           <ArrowLeft className="size-4" />
@@ -79,7 +91,76 @@ export default async function CandidateDetailPage({
           {c.aiScoreRationale && (
             <p className="text-sm text-muted">{c.aiScoreRationale}</p>
           )}
+          <div className="flex flex-wrap gap-2">
+            <DemoCompleteButton
+              label="AI査定を確定"
+              patch={{
+                selectedCandidateId: c.id,
+                selectedClientId: assigned?.id ?? null,
+                matchScore: match?.pct ?? null,
+                recommendedClientIds: assigned ? [assigned.id] : [],
+                proposalDraftStatus: "ready",
+                uiStates: { candidateProfiling: "success" },
+              }}
+              successMessage="査定結果を次導線へ引き渡しました"
+            />
+            <DemoKpiStrip keys={["proposalCycleHours"]} />
+          </div>
         </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">選考履歴</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            {[
+              { step: "応募受付", at: "2026-04-10", status: "完了" },
+              { step: "書類選考", at: "2026-04-12", status: "完了" },
+              { step: "一次面談", at: "2026-04-15", status: "完了" },
+              { step: "最終面談", at: "2026-04-18", status: "調整中" },
+            ].map((row) => (
+              <div
+                key={row.step}
+                className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+              >
+                <div>
+                  <p className="font-medium">{row.step}</p>
+                  <p className="text-xs text-muted">{row.at}</p>
+                </div>
+                <Badge variant={row.status === "調整中" ? "warning" : "success"}>
+                  {row.status}
+                </Badge>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">次アクション</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <div className="rounded-lg border border-border bg-surface p-3">
+              <p className="font-medium text-foreground">候補者側</p>
+              <p className="text-muted">面談可能日時を本日中に3枠回答する。</p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface p-3">
+              <p className="font-medium text-foreground">企業側</p>
+              <p className="text-muted">一次面談評価を入力し、最終面談候補日を確定する。</p>
+            </div>
+            <DemoCompleteButton
+              label="次アクションを確定"
+              patch={{
+                selectedCandidateId: c.id,
+                selectedClientId: assigned?.id ?? null,
+                followReasonLabel: "面談調整中",
+                proposalDraftStatus: "drafting",
+              }}
+              successMessage="選考ToDoを更新しました"
+            />
+          </CardContent>
+        </Card>
       </div>
 
       <Tabs defaultValue="basic" className="w-full">

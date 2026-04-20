@@ -12,6 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { DashboardCandidateCard } from "@/components/dashboard-candidate-card";
 import { DashboardMobileCardSlim } from "@/components/dashboard-mobile-card-slim";
 import { DashboardExtensionRegion } from "@/components/dashboard-extension-region";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
+import { DemoCompleteButton } from "@/components/demo-complete-button";
+import { DemoKpiStrip } from "@/components/demo-kpi-strip";
 import { TemplateDashboardHeader } from "@/components/templates/layout-primitives";
 import { dashboardGridClass, appTemplateConfig } from "@/lib/app-template-config";
 import { getIndustryPageHints } from "@/lib/industry-page-hints";
@@ -55,10 +58,25 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6 sm:space-y-8">
+      <DemoStateBridge
+        page="home"
+        highlightedKpiKeys={["timeSavedMinutesPerDay", "proposalCycleHours"]}
+      />
       <TemplateDashboardHeader
         title={profile.dashboardTitle || dashboard.pageTitle}
         subtitle={profile.dashboardSubtitle || dashboard.pageSubtitle}
       />
+      <div className="flex flex-wrap items-center gap-2">
+        <DemoCompleteButton
+          label="今日のフォロー対象を更新"
+          patch={{
+            followReasonLabel: "面接評価の入力待ち",
+            proposalDraftStatus: "drafting",
+          }}
+          successMessage="フォロー対象の完了導線を反映しました"
+        />
+        <DemoKpiStrip keys={["timeSavedMinutesPerDay", "proposalCycleHours"]} />
+      </div>
 
       <div className={dashboardGridClass(gridCols)}>
         <div className="flex h-full min-h-0 min-w-0 flex-col">
@@ -75,7 +93,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             href={withIndustryQuery("/candidates?view=pipeline", industry)}
             icon={GitBranch}
             title={profile.labels.pipeline}
-            subtitle={`要フォロー（書類）：${docAlerts}件`}
+            subtitle={`要フォロー（選考停滞）：${docAlerts}件`}
           />
           <Link
             href={withIndustryQuery("/candidates?view=pipeline", industry)}
@@ -117,7 +135,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   </ul>
                   {docAlerts > 0 && (
                     <p className="shrink-0 text-xs font-medium text-danger">
-                      要フォロー（書類）: {docAlerts} 件
+                      要フォロー（選考停滞）: {docAlerts} 件
                     </p>
                   )}
                 </div>
@@ -237,7 +255,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <CardContent className="flex min-h-0 flex-1 flex-col gap-3 p-5 pt-0">
                 <div className="flex min-h-0 flex-1 flex-col gap-3">
                   <p className="text-sm leading-snug text-muted">
-                    生成・翻訳ステータス（デモ） / 右下 FAB で OCR 擬似体験
+                    履歴書・職務経歴書の確認ステータス（デモ）
                   </p>
                   <div className="flex flex-wrap gap-2 text-xs">
                     <Badge variant="success">完了 {docKpi.kpiComplete}</Badge>
@@ -258,7 +276,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             href={withIndustryQuery("/revenue", industry)}
             icon={TrendingUp}
             title={profile.labels.revenue}
-            subtitle="売上推移"
+            subtitle="採用速度と歩留まり"
           />
           <Link
             href={withIndustryQuery("/revenue", industry)}
@@ -283,7 +301,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     </span>
                   </div>
                   <p className="text-xs leading-snug text-muted">
-                    直近月の売上イメージ（ダミー推移）
+                    採用速度・歩留まり・工数のダミー指標
                   </p>
                 </div>
                 <span className="mt-auto inline-flex shrink-0 items-center gap-1 pt-1 text-sm font-medium text-primary">

@@ -6,7 +6,11 @@ import { MessageSquare, Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DemoCompleteButton } from "@/components/demo-complete-button";
+import { DemoKpiStrip } from "@/components/demo-kpi-strip";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
 import { TemplatePageHeader, TemplatePageStack } from "@/components/templates/layout-primitives";
+import { useDemoState } from "@/components/demo-state-context";
 import { getIndustryPageHints } from "@/lib/industry-page-hints";
 import type { EnabledIndustryKey } from "@/lib/industry-profiles";
 import { withIndustryQuery } from "@/lib/industry-selection";
@@ -17,6 +21,7 @@ type Props = {
 
 export function KnowledgePageClient({ industry }: Props) {
   const hints = getIndustryPageHints(industry).knowledge;
+  const { state } = useDemoState();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<
     { role: "user" | "assistant"; text: string }[]
@@ -35,7 +40,23 @@ export function KnowledgePageClient({ industry }: Props) {
 
   return (
     <TemplatePageStack>
+      <DemoStateBridge
+        page="knowledge"
+        highlightedKpiKeys={["knowledgeReuseRate", "timeSavedMinutesPerDay"]}
+      />
       <TemplatePageHeader title="ナレッジ AI" description={hints.pageSubtitle} />
+      <div className="flex flex-wrap items-center gap-2">
+        <DemoCompleteButton
+          label="学習反映を完了"
+          patch={{
+            knowledgeNoteId: `knowledge-${state.adviceRevision + 1}`,
+            adviceRevision: state.adviceRevision + 1,
+            uiStates: { knowledgeSync: "success" },
+          }}
+          successMessage="ナレッジ反映が完了しました"
+        />
+        <DemoKpiStrip keys={["knowledgeReuseRate", "timeSavedMinutesPerDay"]} />
+      </div>
 
       <div className="flex flex-wrap gap-2">
         <Button variant="secondary" size="sm" asChild>

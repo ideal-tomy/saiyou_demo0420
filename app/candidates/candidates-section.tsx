@@ -13,6 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { DemoCompleteButton } from "@/components/demo-complete-button";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
+import { useDemoState } from "@/components/demo-state-context";
 import { TemplatePageHeader } from "@/components/templates/layout-primitives";
 import { useMobile } from "@/hooks/use-mobile";
 import { getIndustryDemoData } from "@/lib/demo-data-selector";
@@ -33,6 +36,7 @@ function statusBadgeVariant(
 }
 
 export function CandidatesSection() {
+  const { patchState } = useDemoState();
   const router = useRouter();
   const searchParams = useSearchParams();
   const view = searchParams.get("view");
@@ -77,6 +81,11 @@ export function CandidatesSection() {
   });
 
   function openCandidate(c: Candidate) {
+    patchState({
+      selectedCandidateId: c.id,
+      followReasonLabel: "候補者一覧から優先選定",
+      lastActionAt: new Date().toISOString(),
+    });
     if (isMobile) {
       setPreview(c);
       setSheetOpen(true);
@@ -150,9 +159,18 @@ export function CandidatesSection() {
 
   return (
     <div className="space-y-6">
+      <DemoStateBridge page="candidates" highlightedKpiKeys={["followLeakageRate"]} />
       <TemplatePageHeader
         title={profile.labels.candidate}
         description={`${candidates.length} 件のデモデータ。${pageHints.candidates.pageSubtitle} スマホはタップでクイック表示。`}
+      />
+      <DemoCompleteButton
+        label="優先候補を確定"
+        patch={{
+          followReasonLabel: "滞留候補を優先抽出",
+          uiStates: { candidatePrioritization: "success" },
+        }}
+        successMessage="候補者選定を完了しました"
       />
 
       <Tabs

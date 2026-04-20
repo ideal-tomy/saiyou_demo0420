@@ -4,6 +4,7 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
 import { Separator } from "@/components/ui/separator";
 import {
   TemplatePageHeader,
@@ -36,6 +37,13 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
 
   return (
     <TemplatePageStack>
+      <DemoStateBridge
+        page="client-detail"
+        selectedClientId={client.id}
+        recommendedClientIds={[client.id]}
+        matchScore={matches[0]?.pct ?? null}
+        proposalDraftStatus={matches.length > 0 ? "drafting" : "idle"}
+      />
       <Button variant="ghost" size="sm" asChild className="-ml-2 gap-1 self-start">
         <Link href={withIndustryQuery("/clients", industry)}>
           <ArrowLeft className="size-4" />

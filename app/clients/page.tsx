@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
 import {
   TemplatePageHeader,
   TemplatePageStack,
@@ -27,6 +28,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
   return (
     <TemplatePageStack>
+      <DemoStateBridge page="clients" highlightedKpiKeys={["proposalCycleHours"]} />
       <TemplatePageHeader
         title={profile.labels.client}
         description={`${clients.length} 件のデモデータ。一覧から詳細・AI 候補へ進めます。`}

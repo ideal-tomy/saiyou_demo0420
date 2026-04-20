@@ -10,6 +10,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useMobile } from "@/hooks/use-mobile";
+import { DemoCompleteButton } from "@/components/demo-complete-button";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
 import { getIndustryDemoData } from "@/lib/demo-data-selector";
 import { getIndustryPageHints } from "@/lib/industry-page-hints";
 import type { EnabledIndustryKey } from "@/lib/industry-profiles";
@@ -64,7 +66,37 @@ function ClientMatchingCard({
                 </Link>
                 <span className="font-bold text-primary">{pct}%</span>
               </div>
-              <p className="mt-1 text-xs leading-relaxed text-muted">{reason}</p>
+              <div className="mt-2 space-y-2 text-xs">
+                <p className="font-medium text-foreground">根拠3点</p>
+                <ul className="list-disc space-y-1 pl-4 text-muted">
+                  {reason
+                    .split(" / ")
+                    .slice(0, 3)
+                    .map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                </ul>
+                <p className="font-medium text-foreground">不足要件</p>
+                <p className="text-muted">
+                  {reason.split(" / ").find((line) => line.includes("補足確認")) ??
+                    "不足要件は見当たりません"}
+                </p>
+              </div>
+              <div className="mt-2">
+                <DemoCompleteButton
+                  label="この提案を確定"
+                  patch={{
+                    selectedCandidateId: candidate.id,
+                    selectedClientId: clientId,
+                    recommendedClientIds: [clientId],
+                    matchScore: pct,
+                    proposalDraftStatus: "ready",
+                    uiStates: { proposalFlow: "success" },
+                  }}
+                  successMessage="提案候補を確定しました"
+                  className="min-h-9"
+                />
+              </div>
             </li>
           ))}
         </ol>
@@ -135,6 +167,7 @@ export function MatchingSection({ industry }: Props) {
 
   return (
     <div className="space-y-8">
+      <DemoStateBridge page="matching" highlightedKpiKeys={["proposalCycleHours"]} />
       {data.clients.map((cl, i) => {
         const top = data.getMatchesForClient(cl.id).slice(0, 3);
         return (

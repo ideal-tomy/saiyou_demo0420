@@ -5,6 +5,9 @@ import { Languages } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DemoCompleteButton } from "@/components/demo-complete-button";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
+import { useDemoState } from "@/components/demo-state-context";
 import type { DemoMessage } from "@/lib/demo-messages";
 import { demoMessages } from "@/lib/demo-messages";
 import { cn } from "@/lib/utils";
@@ -16,24 +19,38 @@ function sentimentBadge(s?: DemoMessage["sentiment"]) {
 }
 
 export default function MessagesPage() {
+  const { patchState } = useDemoState();
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
 
   function toggle(id: string) {
+    patchState({
+      uiStates: { translation: "success" },
+      lastActionAt: new Date().toISOString(),
+    });
     setRevealed((r) => ({ ...r, [id]: !r[id] }));
   }
 
   return (
     <div className="space-y-6">
+      <DemoStateBridge page="messages" highlightedKpiKeys={["timeSavedMinutesPerDay"]} />
       <div>
         <h1 className="text-2xl font-semibold text-primary-alt">
-          ワーカーメッセージ
+          多言語メッセージ
         </h1>
         <p className="mt-1 text-sm text-muted">
-          シンハラ語原文と日本語（デモ）。50 件は{" "}
+          非日本語の原文と日本語（デモ）。50 件は{" "}
           <code className="rounded bg-surface px-1 text-xs">lib/demo-messages.ts</code>{" "}
           に追記してください。
         </p>
       </div>
+      <DemoCompleteButton
+        label="翻訳対応を完了"
+        patch={{
+          followReasonLabel: "メッセージ優先対応",
+          uiStates: { translation: "success" },
+        }}
+        successMessage="翻訳と優先度判定の完了を記録しました"
+      />
 
       <ul className="space-y-3">
         {demoMessages.map((m) => (
@@ -51,7 +68,7 @@ export default function MessagesPage() {
               <CardContent className="space-y-3">
                 <div className="grid gap-2 sm:grid-cols-2">
                   <div className="rounded-lg bg-surface p-3 text-sm">
-                    <p className="text-xs text-muted">シンハラ語</p>
+                    <p className="text-xs text-muted">原文</p>
                     <p className="mt-1 font-medium">{m.si}</p>
                     {m.readingJa && (
                       <p className="mt-1 text-xs text-muted">

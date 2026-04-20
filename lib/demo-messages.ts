@@ -37,7 +37,7 @@ export const demoMessages: DemoMessage[] = [
     id: "msg-3",
     si: "Mata lankawata yanna ona.",
     readingJa: "マタ ランカワタ ヤンナ オナ",
-    ja: "スリランカに帰りたいです",
+    ja: "日本に帰りたいです",
     category: "相談",
     sentiment: "danger",
     unread: true,

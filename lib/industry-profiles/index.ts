@@ -83,13 +83,13 @@ export function parseEnabledIndustryKey(
 }
 
 const staffingStatus: Record<CandidatePipelineStatus, string> = {
-  awaiting_entry: "入国待ち",
-  interview_coordination: "面接調整",
-  training: "講習中",
-  offer_accepted: "内定済",
-  visa_applying: "ビザ申請中",
-  document_blocked: "書類不備",
-  document_prep: "書類準備中",
+  awaiting_entry: "応募受付",
+  interview_coordination: "書類選考",
+  training: "一次面談",
+  offer_accepted: "最終面談",
+  visa_applying: "内定",
+  document_blocked: "辞退・保留",
+  document_prep: "入社調整",
 };
 
 const salesStatus: Record<CandidatePipelineStatus, string> = {
@@ -165,32 +165,32 @@ const educationStatus: Record<CandidatePipelineStatus, string> = {
 const baseProfiles: Record<EnabledIndustryKey, IndustryProfile> = {
   staffing: {
     key: "staffing",
-    productName: "派遣コックピット",
-    badgeLabel: "AI デモ",
-    metadataTitle: "派遣コックピット（営業デモ）",
-    metadataDescription: "AI 搭載型業務管理ダッシュボード デモ",
-    dashboardTitle: "ダッシュボード",
+    productName: "採用コックピット",
+    badgeLabel: "採用AI デモ",
+    metadataTitle: "採用コックピット（採用管理デモ）",
+    metadataDescription: "履歴書・職務経歴書と求人要件のAIマッチングデモ",
+    dashboardTitle: "採用ダッシュボード",
     dashboardSubtitle:
-      "管理を便利に、判断をAIで - デモデータで全体像をご覧ください。",
+      "応募から採用判断までを、AIと実務導線で一気通貫に確認できます。",
     labels: {
-      candidate: "候補者",
-      client: "案件",
-      matching: "マッチング",
-      documents: "書類",
-      revenue: "収益",
-      operations: "実務・収益",
-      knowledge: "ナレッジ",
-      pipeline: "選考・ビザ進捗",
+      candidate: "候補者一覧",
+      client: "求人案件",
+      matching: "AIマッチング",
+      documents: "応募書類",
+      revenue: "採用KPI",
+      operations: "採用オペレーション",
+      knowledge: "ナレッジAI",
+      pipeline: "選考パイプライン",
     },
     kpiLabels: {
-      totalCountUnit: "名登録",
-      proficiencyLabel: "日本語 N3 以上",
-      openSlotsLabel: "欠員枠 合計",
-      openSlotsUnit: "名分",
+      totalCountUnit: "名応募",
+      proficiencyLabel: "注力候補",
+      openSlotsLabel: "採用予定枠",
+      openSlotsUnit: "名",
     },
     statusLabels: staffingStatus,
-    matchingDescription: "案件ごとの上位候補と AI 理由（デモロジック）",
-    operationsDescription: "書類・数値へのショートカット（デモ）",
+    matchingDescription: "求人要件ごとの一致率と根拠を一覧表示",
+    operationsDescription: "面談調整・評価入力・連絡の実務ハブ",
   },
   "real-estate": {
     key: "real-estate",

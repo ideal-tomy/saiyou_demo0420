@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CalendarClock, FileText, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DemoStateBridge } from "@/components/demo-state-bridge";
 import {
   TemplatePageHeader,
   TemplatePageStack,
@@ -25,6 +26,11 @@ export default async function OperationsPage({ searchParams }: PageProps) {
 
   return (
     <TemplatePageStack>
+      <DemoStateBridge
+        page="operations"
+        opsHealthScore={82}
+        highlightedKpiKeys={["followLeakageRate", "timeSavedMinutesPerDay"]}
+      />
       <TemplatePageHeader
         title={profile.labels.operations}
         description={profile.operationsDescription}

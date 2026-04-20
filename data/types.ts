@@ -7,6 +7,10 @@ export type Gender = "male" | "female";
 
 export type JlptLevel = "N5" | "N4" | "N3" | "N2" | "N1";
 
+/**
+ * 採用プロセス向けステータス。
+ * キー名は後方互換のため維持し、表示名は industry profile 側で採用ドメインに置換する。
+ */
 export type CandidatePipelineStatus =
   | "awaiting_entry"
   | "interview_coordination"
@@ -43,8 +47,11 @@ export interface Candidate {
   aiScoreRationale?: string;
   pipelineStatus: CandidatePipelineStatus;
   pipelineStatusLabelJa: string;
+  /** 応募書類ID（旧 passportNumber 互換） */
   passportNumber: string;
+  /** 応募書類の期限（旧 passportExpiry 互換） */
   passportExpiry: string;
+  /** 職務経歴書ステータス（旧 coeStatusJa 互換） */
   coeStatusJa: string;
   documentAlertJa?: string;
   plannedAssignment?: {
