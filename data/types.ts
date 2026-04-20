@@ -65,6 +65,36 @@ export interface Candidate {
   };
   photoUrl: string;
   registeredAt: string;
+  personaHeadline?: string;
+  yearsOfExperience?: number;
+  currentRoleJa?: string;
+  achievementHighlights?: string[];
+  careerTimeline?: {
+    period: string;
+    companyJa: string;
+    roleJa: string;
+    summaryJa: string;
+  }[];
+  preferredConditions?: {
+    desiredAnnualIncomeManYen?: number;
+    preferredWorkStyle?: string;
+    preferredLocationJa?: string;
+    availableFrom?: string;
+  };
+  riskNotes?: string[];
+  recommendationCommentJa?: string;
+  screeningTimeline?: {
+    step: string;
+    at: string;
+    status: "done" | "in_progress" | "todo";
+  }[];
+  actionPlan?: {
+    primaryAction: string;
+    owner: "candidate" | "company" | "agent";
+    dueDate: string;
+    candidateTask: string;
+    companyTask: string;
+  };
 }
 
 export interface ClientCompany {
@@ -98,6 +128,18 @@ export interface ClientCompany {
     contactPersonJa: string;
   };
   matchingHintTags: string[];
+  companySummaryJa?: string;
+  hiringContextJa?: string;
+  teamStructureJa?: string;
+  selectionProcessJa?: string[];
+  offerConditionJa?: string;
+  hiringPriority?: "high" | "medium" | "low";
+  urgencyLabelJa?: string;
+  roleRequirements?: {
+    must: string[];
+    want: string[];
+    ng: string[];
+  };
 }
 
 export interface DemoDataBundle {

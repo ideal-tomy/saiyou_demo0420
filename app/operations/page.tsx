@@ -23,6 +23,11 @@ export default async function OperationsPage({ searchParams }: PageProps) {
   const industry = getIndustryFromSearchParams(resolvedSearchParams);
   const profile = getIndustryProfile(industry);
   const hints = getIndustryPageHints(industry).operations;
+  const prioritizedTimeline = [...hints.timeline].sort((a, b) => {
+    const rank = (badge?: string) =>
+      badge === "要対応" ? 0 : badge === "完了" ? 2 : badge === "予定" ? 3 : 1;
+    return rank(a.badge) - rank(b.badge);
+  });
 
   return (
     <TemplatePageStack>
@@ -43,7 +48,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
               <CardTitle className="text-xs font-medium text-muted">{k.label}</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <p className="text-2xl font-bold tabular-nums">{k.value}</p>
+              <p className="text-3xl font-bold tabular-nums">{k.value}</p>
               {k.sub ? (
                 <p className="mt-1 text-xs text-muted">{k.sub}</p>
               ) : null}
@@ -56,11 +61,11 @@ export default async function OperationsPage({ searchParams }: PageProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <CalendarClock className="size-5 text-primary" />
-            直近のオペレーション（デモ）
+            直近の採用アクション
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {hints.timeline.map((row) => (
+          {prioritizedTimeline.map((row) => (
             <div
               key={row.title}
               className="flex flex-col gap-1 rounded-lg border border-border/80 p-3 sm:flex-row sm:items-center sm:justify-between"
@@ -70,7 +75,16 @@ export default async function OperationsPage({ searchParams }: PageProps) {
                 <p className="text-xs text-muted">{row.time}</p>
               </div>
               {row.badge ? (
-                <Badge variant="secondary" className="w-fit shrink-0">
+                <Badge
+                  variant={
+                    row.badge === "要対応"
+                      ? "warning"
+                      : row.badge === "完了"
+                        ? "success"
+                        : "secondary"
+                  }
+                  className="w-fit shrink-0"
+                >
                   {row.badge}
                 </Badge>
               ) : null}
@@ -90,7 +104,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted">
-              生成ステータス、不備候補、OCR デモへ
+              書類確認と不備解消を進める
             </CardContent>
           </Card>
         </Link>
@@ -103,7 +117,7 @@ export default async function OperationsPage({ searchParams }: PageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted">
-              月次グラフ、回収・リスクのダミー表示へ
+              採用KPIと歩留まりの変化を確認する
             </CardContent>
           </Card>
         </Link>

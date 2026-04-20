@@ -29,6 +29,40 @@ type DemoDataModule = {
   ) => { candidate: Candidate; pct: number; reason: string }[];
 };
 
+const demoCandidateNames = [
+  { displayName: "山田 太郎", legalNameFull: "山田 太郎", nameKatakana: "ヤマダ タロウ" },
+  { displayName: "佐藤 花子", legalNameFull: "佐藤 花子", nameKatakana: "サトウ ハナコ" },
+  { displayName: "鈴木 健太", legalNameFull: "鈴木 健太", nameKatakana: "スズキ ケンタ" },
+  { displayName: "高橋 美咲", legalNameFull: "高橋 美咲", nameKatakana: "タカハシ ミサキ" },
+  { displayName: "伊藤 翔", legalNameFull: "伊藤 翔", nameKatakana: "イトウ ショウ" },
+  { displayName: "渡辺 彩", legalNameFull: "渡辺 彩", nameKatakana: "ワタナベ アヤ" },
+  { displayName: "中村 大輔", legalNameFull: "中村 大輔", nameKatakana: "ナカムラ ダイスケ" },
+  { displayName: "小林 真央", legalNameFull: "小林 真央", nameKatakana: "コバヤシ マオ" },
+  { displayName: "加藤 直人", legalNameFull: "加藤 直人", nameKatakana: "カトウ ナオト" },
+  { displayName: "吉田 里奈", legalNameFull: "吉田 里奈", nameKatakana: "ヨシダ リナ" },
+  { displayName: "山本 悠斗", legalNameFull: "山本 悠斗", nameKatakana: "ヤマモト ユウト" },
+  { displayName: "松本 優奈", legalNameFull: "松本 優奈", nameKatakana: "マツモト ユウナ" },
+  { displayName: "井上 拓海", legalNameFull: "井上 拓海", nameKatakana: "イノウエ タクミ" },
+  { displayName: "木村 千尋", legalNameFull: "木村 千尋", nameKatakana: "キムラ チヒロ" },
+  { displayName: "林 恒一", legalNameFull: "林 恒一", nameKatakana: "ハヤシ コウイチ" },
+  { displayName: "清水 葵", legalNameFull: "清水 葵", nameKatakana: "シミズ アオイ" },
+  { displayName: "阿部 颯太", legalNameFull: "阿部 颯太", nameKatakana: "アベ ソウタ" },
+  { displayName: "森 優衣", legalNameFull: "森 優衣", nameKatakana: "モリ ユイ" },
+  { displayName: "池田 亮", legalNameFull: "池田 亮", nameKatakana: "イケダ リョウ" },
+  { displayName: "橋本 結衣", legalNameFull: "橋本 結衣", nameKatakana: "ハシモト ユイ" },
+];
+
+const demoClientNames = [
+  { legalNameJa: "株式会社青葉ソリューションズ", tradeNameJa: "青葉ソリューションズ" },
+  { legalNameJa: "株式会社みらいキャリアデザイン", tradeNameJa: "みらいキャリアデザイン" },
+  { legalNameJa: "株式会社東都ビジネスサポート", tradeNameJa: "東都ビジネスサポート" },
+  { legalNameJa: "株式会社ネクストリンクパートナーズ", tradeNameJa: "ネクストリンクパートナーズ" },
+  { legalNameJa: "株式会社フロントラインワークス", tradeNameJa: "フロントラインワークス" },
+  { legalNameJa: "株式会社シティブリッジ", tradeNameJa: "シティブリッジ" },
+  { legalNameJa: "株式会社ライトハウスコンサルティング", tradeNameJa: "ライトハウスコンサルティング" },
+  { legalNameJa: "株式会社グロースフィールド", tradeNameJa: "グロースフィールド" },
+];
+
 function normalizeText(input: string): string[] {
   return input
     .toLowerCase()
@@ -44,10 +78,10 @@ function buildJobBasedReason(candidate: Candidate, client: ClientCompany): {
   evidence: string[];
   gaps: string[];
 } {
-  const requirementTokens = [
-    ...client.matchingHintTags,
-    ...normalizeText(client.recruitmentJa),
-  ];
+  const mustTokens = client.roleRequirements?.must ?? client.matchingHintTags.slice(0, 3);
+  const wantTokens =
+    client.roleRequirements?.want ?? [...client.matchingHintTags.slice(3), ...normalizeText(client.recruitmentJa)].slice(0, 3);
+  const requirementTokens = [...mustTokens, ...wantTokens];
   const candidateTokens = [
     ...candidate.skillTags,
     ...normalizeText(candidate.backgroundSummary),
@@ -69,10 +103,23 @@ function buildJobBasedReason(candidate: Candidate, client: ClientCompany): {
     "初期オンボーディング期間を短縮できる見込み",
   ];
   const gaps = unmatched.slice(0, 2).map((token) => `要件「${token}」は面談で補足確認が必要`);
+  const mustMatched = mustTokens.filter((token) => candidateSet.has(token));
+  const wantMatched = wantTokens.filter((token) => candidateSet.has(token));
+  const firstGap = gaps[0] ?? "不足要件は見当たりません";
+  const followupQuestion =
+    gaps.length > 0
+      ? `面談確認: ${unmatched[0]}の実務経験を具体案件で確認`
+      : "面談確認: 直近成果の再現条件を確認";
 
   return {
     pct,
-    reason: [...(evidence.length > 0 ? evidence : fallbackEvidence), ...gaps].join(" / "),
+    reason: [
+      `MUST一致:${mustMatched.length}/${mustTokens.length}`,
+      `WANT一致:${wantMatched.length}/${wantTokens.length}`,
+      `根拠:${(evidence.length > 0 ? evidence : fallbackEvidence).join(" | ")}`,
+      `GAP:${firstGap}`,
+      `確認質問:${followupQuestion}`,
+    ].join(" / "),
     evidence: evidence.length > 0 ? evidence : fallbackEvidence,
     gaps: gaps.length > 0 ? gaps : ["不足要件は見当たりません"],
   };
@@ -80,10 +127,11 @@ function buildJobBasedReason(candidate: Candidate, client: ClientCompany): {
 
 function createAnonymizedClient(client: ClientCompany, index: number): ClientCompany {
   const no = String(index + 1).padStart(2, "0");
+  const demoName = demoClientNames[index % demoClientNames.length];
   return {
     ...client,
-    legalNameJa: `取引先法人${no}`,
-    tradeNameJa: `取引先C${no}`,
+    legalNameJa: demoName.legalNameJa,
+    tradeNameJa: demoName.tradeNameJa,
     prefectureJa: `エリア${(index % 4) + 1}`,
     cityJa: `ゾーン${(index % 8) + 1}`,
     addressLineJa: `匿名住所-${no}`,
@@ -108,14 +156,15 @@ function createAnonymizedCandidate(
   clientIdMap: Map<string, string>,
 ): Candidate {
   const no = String(index + 1).padStart(2, "0");
+  const demoName = demoCandidateNames[index % demoCandidateNames.length];
   const mappedClientId = candidate.plannedAssignment
     ? clientIdMap.get(candidate.plannedAssignment.clientId) ?? candidate.plannedAssignment.clientId
     : undefined;
   return {
     ...candidate,
-    displayName: `候補者A${no}`,
-    legalNameFull: `候補者A${no} 正式名`,
-    nameKatakana: `コウホシャA${no}`,
+    displayName: demoName.displayName,
+    legalNameFull: demoName.legalNameFull,
+    nameKatakana: demoName.nameKatakana,
     birthPlace: `出身エリア${(index % 6) + 1}`,
     residence: {
       ...candidate.residence,
@@ -151,9 +200,8 @@ function anonymizeModule(module: DemoDataModule): DemoDataModule {
 
   function sanitizeReason(reason: string): string {
     return reason
-      .replace(/[A-Z]\s?社/g, "取引先")
-      .replace(/株式会社[^\s、。]+/g, "取引先法人")
-      .replace(/[一-龠々〆ヵヶぁ-んァ-ヴー]+\s?[一-龠々〆ヵヶぁ-んァ-ヴー]+/g, "担当候補");
+      .replace(/[A-Z]\s?社/g, "採用先企業")
+      .replace(/株式会社[^\s、。]+/g, "採用先企業");
   }
 
   return {

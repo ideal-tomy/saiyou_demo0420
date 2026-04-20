@@ -94,14 +94,14 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       sheetOrder: "alertFirst",
     },
     documents: {
-      pageSubtitle: "履歴書・職務経歴書の確認ステータスと OCR デモ（API なし）",
+      pageSubtitle: "履歴書・職務経歴書の不備を確認し、当日対応へ進める画面（API なし）",
       kpiComplete: 12,
       kpiReview: 3,
-      ocrButtonLabel: "パスポート OCR（デモ）",
+      ocrButtonLabel: "OCRで書類を再確認（デモ）",
       sheetTitle: "OCR 抽出結果",
-      ocrSampleName: "サンプル: 候補者A01",
+      ocrSampleName: "サンプル: 山田 太郎",
       ocrSampleLines: [
-        "氏名: 候補者A01 正式名",
+        "氏名: 山田 太郎",
         "生年月日: 1998-04-15",
         "パスポート: N1234567 / 2030-05-10",
       ],
@@ -118,7 +118,7 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
         { label: "最終面談予定", value: "5", sub: "件 30日以内" },
       ],
       timeline: [
-        { title: "取引先C01 — 欠員補充の承認待ち", time: "今日 14:20", badge: "要対応" },
+        { title: "青葉ソリューションズ — 欠員補充の承認待ち", time: "今日 14:20", badge: "要対応" },
         { title: "書類不備フォロー SMS 送信", time: "昨日", badge: "完了" },
         { title: "請求締めデータ生成（バッチ）", time: "4/1 0:00", badge: "予定" },
       ],
@@ -136,12 +136,12 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
         "デモ応答: 該当する監理報告のテンプレは「書類管理」から参照する想定です。本番では社内ドキュメントを RAG 検索します。",
     },
     home: {
-      matchingMobileSubtitle: "案件別AI候補",
+      matchingMobileSubtitle: "案件別の次アクション候補",
       matchingDesktopTeaser:
-        "取引先C01 × 候補者A01 など、案件別の推奨候補と理由を表示します。",
+        "取引先ごとに、いま提案すべき候補者を特定し、確認質問まで提示します。",
       matchingDesktopReason:
-        "「規律重視の現場には軍・警察経験者が適合」— 3行理由つき（デモ）",
-      documentsMobileSubtitle: "画像で書類作成",
+        "Must一致率・Want一致率・不足要件を確認し、提案判断を1画面で完了します。",
+      documentsMobileSubtitle: "書類確認と不備対応",
     },
     clients: { listCardEmphasis: "openSlots" },
     clientDetail: {
@@ -153,21 +153,21 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
     },
     candidateDetail: {
       tabBasic: "基本情報",
-      tabDocs: "書類",
-      tabHistory: "選考履歴・評価",
+      tabDocs: "応募書類",
+      tabHistory: "職務経歴・評価",
       tabAi: "AI 分析",
-      profileCardTitle: "プロフィール",
+      profileCardTitle: "候補者プロフィール",
       docsCardTitle: "応募書類",
       docsPrimaryLabel: "パスポート",
       docsSecondaryLabel: "職務経歴書",
       docsExpiryLabel: "有効期限",
       docsOcrNote:
         "OCR デモ: ダッシュボード右下 FAB からサンプル抽出を表示できます。",
-      historyCardTitle: "選考履歴・評価（デモ）",
+      historyCardTitle: "職務経歴タイムライン",
       historyPlaceholder:
-        "本番では選考ログを時系列表示。デモでは書類選考から最終面談までの履歴を表示します。",
+        "直近の職務経歴と成果を確認し、求人要件との一致を判断します。",
       plannedAssignmentSalaryLabel: "月給",
-      aiCardTitle: "AI マッチング示唆",
+      aiCardTitle: "AI 推薦根拠",
       aiEmptyAssignment:
         "提案先求人が未設定です。求人別の提案は次のリンクから確認できます。",
       aiMatchingLinkLabel: "マッチング一覧を開く",
@@ -191,7 +191,7 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       sheetTitle: "スキャン結果（契約準備）",
       ocrSampleName: "サンプル: 購入者 本人確認",
       ocrSampleLines: [
-        "氏名: 候補者A02",
+        "氏名: 佐藤 花子",
         "住所: エリア2 ゾーン5…",
         "有効期限: 2032-03-31",
       ],
@@ -278,7 +278,7 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       sheetTitle: "証憑データ抽出",
       ocrSampleName: "サンプル: 領収書スキャン",
       ocrSampleLines: [
-        "取引先: 取引先法人03",
+        "取引先: 株式会社東都ビジネスサポート",
         "金額: ￥82,500（税込）",
         "日付: 2026-03-28",
       ],
@@ -365,7 +365,7 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       sheetTitle: "安全書類スキャン結果",
       ocrSampleName: "サンプル: 高所作業 特別教育修了証",
       ocrSampleLines: [
-        "氏名: 候補者A03",
+        "氏名: 鈴木 健太",
         "講習日: 2025-11-02",
         "有効期限: 2028-11-01",
       ],
@@ -566,8 +566,8 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
         { label: "要修正", value: "連動", sub: "パイプライン" },
       ],
       timeline: [
-        { title: "取引先C11 — 見積再提出の承認待ち", time: "今日 16:00", badge: "要対応" },
-        { title: "取引先C12 — デモ実施フォローメール", time: "昨日", badge: "完了" },
+        { title: "みらいキャリアデザイン — 見積再提出の承認待ち", time: "今日 16:00", badge: "要対応" },
+        { title: "東都ビジネスサポート — デモ実施フォローメール", time: "昨日", badge: "完了" },
         { title: "四半期レビュー資料の集計", time: "金曜", badge: "予定" },
       ],
     },
@@ -637,7 +637,7 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       sheetTitle: "作業資格の抽出",
       ocrSampleName: "サンプル: フォークリフト技能講習修了証",
       ocrSampleLines: [
-        "氏名: 候補者A04",
+        "氏名: 高橋 美咲",
         "種別: フォークリフト",
         "有効期限: 2027-08-31",
       ],
@@ -724,7 +724,7 @@ const hints: Record<EnabledIndustryKey, IndustryPageHints> = {
       sheetTitle: "提出物の抽出",
       ocrSampleName: "サンプル: 課題レポート表紙",
       ocrSampleLines: [
-        "受講者: 候補者A05",
+        "受講者: 伊藤 翔",
         "講座: データ分析基礎",
         "提出日: 2026-03-30",
       ],

@@ -70,11 +70,20 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">社風・環境</CardTitle>
+            <CardTitle className="text-base">企業紹介・採用背景</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
+            {client.companySummaryJa ? <p>{client.companySummaryJa}</p> : null}
+            {client.hiringContextJa ? (
+              <p className="rounded-lg border border-border bg-surface p-3 text-foreground">
+                採用背景: {client.hiringContextJa}
+              </p>
+            ) : null}
             <p>{client.cultureJa}</p>
             <p className="text-muted">{client.workplaceEnvironmentJa}</p>
+            {client.teamStructureJa ? (
+              <p className="text-xs text-muted">組織体制: {client.teamStructureJa}</p>
+            ) : null}
             {client.currentChallengesJa && (
               <p className="text-warning text-xs">{client.currentChallengesJa}</p>
             )}
@@ -90,10 +99,47 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">募集・稼働</CardTitle>
+            <CardTitle className="text-base">採用条件・募集要件</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>{client.recruitmentJa}</p>
+            {client.offerConditionJa ? (
+              <p className="text-xs text-muted">オファー条件: {client.offerConditionJa}</p>
+            ) : null}
+            <div className="flex flex-wrap gap-2">
+              {client.urgencyLabelJa ? <Badge variant="warning">{client.urgencyLabelJa}</Badge> : null}
+              {client.hiringPriority ? (
+                <Badge variant="secondary">
+                  優先度: {client.hiringPriority === "high" ? "高" : client.hiringPriority === "medium" ? "中" : "低"}
+                </Badge>
+              ) : null}
+            </div>
+            {client.roleRequirements ? (
+              <div className="space-y-2 rounded-lg border border-border bg-surface p-3">
+                <div>
+                  <p className="text-xs font-semibold text-foreground">Must（必須）</p>
+                  <p className="text-xs text-muted">{client.roleRequirements.must.join(" / ")}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">Want（歓迎）</p>
+                  <p className="text-xs text-muted">{client.roleRequirements.want.join(" / ")}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">NG（ミスマッチ）</p>
+                  <p className="text-xs text-muted">{client.roleRequirements.ng.join(" / ")}</p>
+                </div>
+              </div>
+            ) : null}
+            {client.selectionProcessJa && client.selectionProcessJa.length > 0 ? (
+              <div className="rounded-lg border border-border bg-surface p-3">
+                <p className="text-xs font-semibold text-foreground">選考フロー</p>
+                <ol className="list-decimal space-y-1 pl-4 text-xs text-muted">
+                  {client.selectionProcessJa.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              </div>
+            ) : null}
             <Separator />
             <dl className="grid grid-cols-2 gap-2">
               <div>
@@ -156,7 +202,13 @@ export default async function ClientDetailPage({ params, searchParams }: Props) 
                     {pct}%
                   </span>
                 </div>
-                <p className="mt-2 text-sm leading-relaxed text-muted">{reason}</p>
+                <div className="mt-2 space-y-2 text-xs">
+                  {reason.split(" / ").map((block) => (
+                    <p key={block} className="text-muted">
+                      {block}
+                    </p>
+                  ))}
+                </div>
               </li>
             ))}
           </ul>

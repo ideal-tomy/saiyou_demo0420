@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -51,6 +51,8 @@ export function CandidatesSection() {
   const [tab, setTab] = useState(resolvedDefaultTab);
   const [q, setQ] = useState("");
   const [jlpt, setJlpt] = useState<JlptLevel | "all">("all");
+  const [selectedPipelineStatus, setSelectedPipelineStatus] =
+    useState<Candidate["pipelineStatus"] | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [preview, setPreview] = useState<Candidate | null>(null);
   const isMobile = useMobile();
@@ -79,6 +81,36 @@ export function CandidatesSection() {
       .toLowerCase();
     return hay.includes(t);
   });
+  const pipelineEntries = Object.entries(pipeline) as [
+    Candidate["pipelineStatus"],
+    number,
+  ][];
+  const urgentCount = candidates.filter(
+    (c) => c.pipelineStatus === "document_blocked" || c.pipelineStatus === "document_prep",
+  ).length;
+  const interviewSoonCount = candidates.filter(
+    (c) =>
+      c.pipelineStatus === "training" ||
+      c.pipelineStatus === "offer_accepted" ||
+      c.pipelineStatus === "visa_applying",
+  ).length;
+
+  const pipelineFocusCandidates = useMemo(() => {
+    const target = selectedPipelineStatus
+      ? candidates.filter((c) => c.pipelineStatus === selectedPipelineStatus)
+      : candidates;
+    return target.slice(0, 5);
+  }, [candidates, selectedPipelineStatus]);
+
+  function stagnationDays(candidate: Candidate): number {
+    return candidate.pipelineStatus === "document_blocked"
+      ? 10
+      : candidate.pipelineStatus === "document_prep"
+        ? 7
+        : candidate.pipelineStatus === "interview_coordination"
+          ? 6
+          : 3;
+  }
 
   function openCandidate(c: Candidate) {
     patchState({
@@ -164,6 +196,29 @@ export function CandidatesSection() {
         title={profile.labels.candidate}
         description={`${candidates.length} 件のデモデータ。${pageHints.candidates.pageSubtitle} スマホはタップでクイック表示。`}
       />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted">要対応件数</p>
+            <p className="text-3xl font-bold tabular-nums">{urgentCount}</p>
+            <p className="text-xs text-muted">書類不備・停滞を優先フォロー</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted">滞留リスク</p>
+            <p className="text-3xl font-bold tabular-nums">{pipeline.document_blocked}</p>
+            <p className="text-xs text-muted">辞退・保留は当日中に再接触</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-xs text-muted">本日面談予定</p>
+            <p className="text-3xl font-bold tabular-nums">{interviewSoonCount}</p>
+            <p className="text-xs text-muted">面談前後の評価入力を優先</p>
+          </CardContent>
+        </Card>
+      </div>
       <DemoCompleteButton
         label="優先候補を確定"
         patch={{
@@ -190,20 +245,57 @@ export function CandidatesSection() {
 
         <TabsContent value="pipeline" className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {(
-              Object.entries(pipeline) as [
-                Candidate["pipelineStatus"],
-                number,
-              ][]
-            ).map(([key, n]) => (
-              <Card key={key}>
-                <CardContent className="p-4">
+            {pipelineEntries.map(([key, n]) => (
+              <Card
+                key={key}
+                onClick={() =>
+                  setSelectedPipelineStatus((current) => (current === key ? null : key))
+                }
+                className={cn(
+                  "cursor-pointer transition-all hover:border-primary/30",
+                  selectedPipelineStatus === key ? "border-primary/50 bg-primary/5" : "",
+                )}
+              >
+                <CardContent className="space-y-1 p-4">
                   <p className="text-xs text-muted">{profile.statusLabels[key]}</p>
-                  <p className="text-2xl font-bold tabular-nums">{n}</p>
+                  <p className="text-3xl font-bold tabular-nums">{n}</p>
+                  <p className="text-xs text-muted">
+                    滞留リスク {Math.max(0, n - 1)} 件 / クリックで候補表示
+                  </p>
                 </CardContent>
               </Card>
             ))}
           </div>
+          <Card>
+            <CardContent className="space-y-3 p-4">
+              <p className="text-sm font-semibold">
+                {selectedPipelineStatus
+                  ? `${profile.statusLabels[selectedPipelineStatus]} の候補`
+                  : "全ステータスの優先候補"}
+              </p>
+              {pipelineFocusCandidates.map((candidate) => (
+                <div
+                  key={candidate.id}
+                  className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <p className="text-sm font-medium">{candidate.displayName}</p>
+                    <p className="text-xs text-muted">
+                      滞留 {stagnationDays(candidate)} 日 / 次アクション:{" "}
+                      {candidate.actionPlan?.primaryAction ?? "評価確認"}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="min-h-10"
+                    onClick={() => openCandidate(candidate)}
+                  >
+                    詳細を開く
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="list" className="space-y-4">
@@ -235,16 +327,16 @@ export function CandidatesSection() {
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {filtered.map((c) => (
-              <button
+              <Card
                 key={c.id}
-                type="button"
                 onClick={() => openCandidate(c)}
                 className={cn(
                   "min-h-[52px] text-left transition-all hover:shadow-md rounded-xl border border-border bg-card p-4",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                 )}
               >
-                <div className="flex gap-3">
+                <CardContent className="space-y-3 p-0">
+                  <div className="flex gap-3">
                   <Image
                     src={c.photoUrl}
                     alt=""
@@ -253,8 +345,8 @@ export function CandidatesSection() {
                     className="rounded-full bg-surface shrink-0"
                     unoptimized
                   />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold truncate">{c.displayName}</p>
+                    <div className="min-w-0 flex-1">
+                    <p className="truncate text-base font-semibold">{c.displayName}</p>
                     <p className="text-xs text-muted">
                       {c.nationality} · {c.jlpt}
                     </p>
@@ -265,8 +357,26 @@ export function CandidatesSection() {
                       </Badge>
                     </div>
                   </div>
-                </div>
-              </button>
+                  </div>
+                  <Separator />
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs text-muted">
+                      次アクション: {c.actionPlan?.primaryAction ?? "面談調整"}
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="min-h-9"
+                      asChild
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <Link href={withIndustryQuery(`/candidates/${c.id}`, industry)}>
+                        詳細へ
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </TabsContent>

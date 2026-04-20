@@ -63,6 +63,11 @@ export default async function ClientsPage({ searchParams }: PageProps) {
                 </div>
               ) : null}
               <CardContent className="space-y-3 text-sm">
+                {c.roleRequirements?.must?.length ? (
+                  <p className="line-clamp-1 text-xs font-medium text-foreground">
+                    Must: {c.roleRequirements.must.join(" / ")}
+                  </p>
+                ) : null}
                 {emphasis === "openSlots" ? (
                   <>
                     <div className="flex flex-wrap gap-2">
@@ -71,28 +76,34 @@ export default async function ClientsPage({ searchParams }: PageProps) {
                         稼働 {c.operations.currentAssignees}
                       </Badge>
                     </div>
-                    <p className="line-clamp-2 text-sm text-muted">{c.cultureJa}</p>
+                    <p className="line-clamp-2 text-sm text-muted">
+                      {c.hiringContextJa ?? c.cultureJa}
+                    </p>
                   </>
                 ) : emphasis === "culture" ? (
                   <>
                     <p className="line-clamp-3 text-sm leading-relaxed text-foreground">
-                      {c.cultureJa}
+                      {c.companySummaryJa ?? c.cultureJa}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="warning">空き {c.operations.openSlots}</Badge>
                       <Badge variant="secondary">
                         稼働 {c.operations.currentAssignees}
                       </Badge>
+                      {c.urgencyLabelJa ? <Badge>{c.urgencyLabelJa}</Badge> : null}
                     </div>
                   </>
                 ) : (
                   <>
-                    <p className="line-clamp-2 text-sm text-muted">{c.cultureJa}</p>
+                    <p className="line-clamp-2 text-sm text-muted">
+                      {c.hiringContextJa ?? c.cultureJa}
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="warning">空き {c.operations.openSlots}</Badge>
                       <Badge variant="secondary">
                         稼働 {c.operations.currentAssignees}
                       </Badge>
+                      {c.urgencyLabelJa ? <Badge>{c.urgencyLabelJa}</Badge> : null}
                     </div>
                   </>
                 )}

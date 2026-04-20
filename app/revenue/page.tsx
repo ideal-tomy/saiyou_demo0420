@@ -80,7 +80,7 @@ export default async function RevenuePage({ searchParams }: PageProps) {
               <TrendingUp className="size-3.5 text-primary" />
               {kpis.latestMonthLabel} 売上（紹介料ベース）
             </CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums">
+            <CardTitle className="text-3xl font-bold tabular-nums">
               {formatManYen(kpis.latestManYen)}
             </CardTitle>
           </CardHeader>
@@ -101,6 +101,7 @@ export default async function RevenuePage({ searchParams }: PageProps) {
               {kpis.momPct}%
             </span>
             <span className="ml-2">（ダミー推移）</span>
+            <p className="mt-1">面談設定速度の改善が売上寄与を押し上げる想定。</p>
           </CardContent>
         </Card>
 
@@ -110,13 +111,14 @@ export default async function RevenuePage({ searchParams }: PageProps) {
               <CircleDollarSign className="size-3.5 text-primary" />
               人材獲得コスト（CAC・平均）
             </CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums">
+            <CardTitle className="text-3xl font-bold tabular-nums">
               {formatYen(cac.avgCacJpy)}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0 text-xs text-muted">
             中央値 {formatYen(cac.medianCacJpy)} ・ 直近12ヶ月ベース n=
             {cac.sampleSize}
+            <p className="mt-1">採用リードの質改善でCAC低減を狙う判断指標。</p>
           </CardContent>
         </Card>
 
@@ -126,12 +128,13 @@ export default async function RevenuePage({ searchParams }: PageProps) {
               <Percent className="size-3.5 text-primary" />
               加重平均継続率（稼働人数）
             </CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums">
+            <CardTitle className="text-3xl font-bold tabular-nums">
               {kpis.weightedRetentionPct}%
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0 text-xs text-muted">
             8社ポートフォリオの稼働人数で加重。損益分岐モデルに反映。
+            <p className="mt-1">定着率改善は返金リスク低減と粗利改善の両方に寄与。</p>
           </CardContent>
         </Card>
 
@@ -141,7 +144,7 @@ export default async function RevenuePage({ searchParams }: PageProps) {
               <Scale className="size-3.5 text-primary" />
               損益分岐（1名あたり・デモ）
             </CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums">
+            <CardTitle className="text-3xl font-bold tabular-nums">
               {be.breakevenMonth != null
                 ? `約 ${be.breakevenMonth} ヶ月`
                 : "24ヶ月超"}
@@ -149,6 +152,7 @@ export default async function RevenuePage({ searchParams }: PageProps) {
           </CardHeader>
           <CardContent className="pt-0 text-xs text-muted">
             累積粗利が平均CAC（{be.cacManYen} 万円）を超える月。下図参照。
+            <p className="mt-1">面談通過率と継続率の改善が損益分岐前倒しに効く。</p>
           </CardContent>
         </Card>
       </TemplateKpiGrid>
@@ -167,6 +171,12 @@ export default async function RevenuePage({ searchParams }: PageProps) {
           <ClientOnlyChart className="h-[280px] min-h-[240px]">
             <RevenueMonthlyChart data={trend} accentHex={accentHex} />
           </ClientOnlyChart>
+          <div className="mt-3 rounded-lg border border-border bg-surface p-3 text-xs">
+            <p className="font-medium text-foreground">次アクション（現場）</p>
+            <p className="text-muted">滞留候補への再接触を当日中に完了し、面談設定率を引き上げる。</p>
+            <p className="mt-2 font-medium text-foreground">次アクション（経営）</p>
+            <p className="text-muted">高CAC案件の流入比率を見直し、粗利インパクトの高い案件配分へ調整する。</p>
+          </div>
         </CardContent>
       </Card>
 

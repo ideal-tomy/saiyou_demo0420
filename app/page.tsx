@@ -53,6 +53,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const trend = data.monthlyRevenueTrend();
   const lastRev = trend[trend.length - 1]?.amountManYen ?? 0;
   const docAlerts = data.countDocumentAlerts();
+  const nextActions = data.candidates
+    .filter((candidate) => candidate.actionPlan)
+    .sort((a, b) => (a.actionPlan!.dueDate > b.actionPlan!.dueDate ? 1 : -1))
+    .slice(0, 3);
   const { dashboard } = appTemplateConfig;
   const gridCols = dashboard.gridColumns;
 
@@ -68,15 +72,48 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       />
       <div className="flex flex-wrap items-center gap-2">
         <DemoCompleteButton
-          label="今日のフォロー対象を更新"
+          label="今日やる3件を再抽出"
           patch={{
             followReasonLabel: "面接評価の入力待ち",
             proposalDraftStatus: "drafting",
           }}
-          successMessage="フォロー対象の完了導線を反映しました"
+          successMessage="優先アクションを更新しました"
         />
         <DemoKpiStrip keys={["timeSavedMinutesPerDay", "proposalCycleHours"]} />
       </div>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">今日やる3件（Next Best Action）</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {nextActions.map((candidate, index) => (
+            <div
+              key={candidate.id}
+              className="flex flex-col gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0 space-y-1">
+                <p className="text-sm font-semibold">
+                  {index + 1}. {candidate.displayName}
+                </p>
+                <p className="text-xs text-muted">
+                  期限: {candidate.actionPlan?.dueDate} / 理由:{" "}
+                  {candidate.actionPlan?.primaryAction}
+                </p>
+                <p className="text-xs text-muted">
+                  次にやること: {candidate.actionPlan?.candidateTask}
+                </p>
+              </div>
+              <Link
+                href={withIndustryQuery(`/candidates/${candidate.id}`, industry)}
+                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground hover:opacity-90"
+              >
+                {candidate.actionPlan?.primaryAction}
+              </Link>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <div className={dashboardGridClass(gridCols)}>
         <div className="flex h-full min-h-0 min-w-0 flex-col">

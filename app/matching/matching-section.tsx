@@ -43,6 +43,28 @@ function ClientMatchingCard({
   collapsible: boolean;
   defaultOpen: boolean;
 }) {
+  const parseReason = (reason: string) => {
+    const blocks = reason.split(" / ");
+    const must = blocks.find((line) => line.startsWith("MUST一致:"));
+    const want = blocks.find((line) => line.startsWith("WANT一致:"));
+    const evidence = blocks
+      .find((line) => line.startsWith("根拠:"))
+      ?.replace("根拠:", "")
+      .split(" | ")
+      .filter(Boolean);
+    const gap = blocks.find((line) => line.startsWith("GAP:"))?.replace("GAP:", "");
+    const question = blocks
+      .find((line) => line.startsWith("確認質問:"))
+      ?.replace("確認質問:", "");
+    return {
+      must: must ?? "MUST一致:0/0",
+      want: want ?? "WANT一致:0/0",
+      evidence: evidence ?? [],
+      gap: gap ?? "不足要件は見当たりません",
+      question: question ?? "面談確認事項なし",
+    };
+  };
+
   const inner = (
     <>
       {top.length === 0 ? (
@@ -50,11 +72,12 @@ function ClientMatchingCard({
       ) : (
         <ol className="space-y-3">
           {top.map(({ candidate, pct, reason }) => (
-            <li
-              key={candidate.id}
-              className="rounded-lg border border-border p-3 text-sm"
-            >
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <li key={candidate.id} className="rounded-lg border border-border p-4 text-sm">
+              {(() => {
+                const parsed = parseReason(reason);
+                return (
+                  <>
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <Link
                   href={withIndustryQuery(
                     `/candidates/${candidate.id}`,
@@ -64,25 +87,29 @@ function ClientMatchingCard({
                 >
                   {candidate.displayName}
                 </Link>
-                <span className="font-bold text-primary">{pct}%</span>
+                <span className="text-2xl font-bold tabular-nums text-primary">{pct}%</span>
               </div>
               <div className="mt-2 space-y-2 text-xs">
-                <p className="font-medium text-foreground">根拠3点</p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="text-[11px]">
+                    {parsed.must}
+                  </Badge>
+                  <Badge variant="secondary" className="text-[11px]">
+                    {parsed.want}
+                  </Badge>
+                </div>
+                <p className="font-medium text-foreground">根拠3点（要件一致）</p>
                 <ul className="list-disc space-y-1 pl-4 text-muted">
-                  {reason
-                    .split(" / ")
-                    .slice(0, 3)
-                    .map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
+                  {parsed.evidence.map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
                 </ul>
                 <p className="font-medium text-foreground">不足要件</p>
-                <p className="text-muted">
-                  {reason.split(" / ").find((line) => line.includes("補足確認")) ??
-                    "不足要件は見当たりません"}
-                </p>
+                <p className="text-muted">{parsed.gap}</p>
+                <p className="font-medium text-foreground">面談での確認質問</p>
+                <p className="text-muted">{parsed.question}</p>
               </div>
-              <div className="mt-2">
+              <div className="mt-3">
                 <DemoCompleteButton
                   label="この提案を確定"
                   patch={{
@@ -94,9 +121,12 @@ function ClientMatchingCard({
                     uiStates: { proposalFlow: "success" },
                   }}
                   successMessage="提案候補を確定しました"
-                  className="min-h-9"
+                  className="min-h-11 w-full"
                 />
               </div>
+                  </>
+                );
+              })()}
             </li>
           ))}
         </ol>

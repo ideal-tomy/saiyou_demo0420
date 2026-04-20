@@ -86,6 +86,12 @@ export default function DocumentsPage() {
   const blocked = data.candidates.filter(
     (c) => c.pipelineStatus === "document_blocked"
   );
+  const actionRows = blocked.map((candidate) => ({
+    candidate,
+    reason: candidate.documentAlertJa ?? "選考停滞のため再確認が必要",
+    dueDate: candidate.actionPlan?.dueDate ?? "2026-04-25",
+    nextAction: candidate.actionPlan?.primaryAction ?? "不備解消を依頼",
+  }));
 
   return (
     <TemplatePageStack>
@@ -100,20 +106,6 @@ export default function DocumentsPage() {
       />
 
       <div className="flex flex-wrap gap-3">
-        <Button onClick={runScan} className="gap-2 min-h-11">
-          <ScanLine className="size-4" />
-          {docHints.ocrButtonLabel}
-        </Button>
-        <Button variant="secondary" asChild className="min-h-11">
-          <Link href={withIndustryQuery("/candidates?view=pipeline", industry)}>
-            {profile.statusLabels.document_blocked}の{profile.labels.candidate}を見る
-          </Link>
-        </Button>
-        {scanFailed ? (
-          <Button variant="outline" onClick={runScan} className="min-h-11">
-            再試行して同期を復帰
-          </Button>
-        ) : null}
         <DemoCompleteButton
           label="不備解消を完了"
           patch={{
@@ -126,6 +118,20 @@ export default function DocumentsPage() {
           successMessage="不備解消から進行復帰を反映しました"
           className="min-h-11"
         />
+        <Button onClick={runScan} className="gap-2 min-h-11" variant="secondary">
+          <ScanLine className="size-4" />
+          {docHints.ocrButtonLabel}
+        </Button>
+        <Button variant="outline" asChild className="min-h-11">
+          <Link href={withIndustryQuery("/candidates?view=pipeline", industry)}>
+            {profile.statusLabels.document_blocked}の{profile.labels.candidate}を見る
+          </Link>
+        </Button>
+        {scanFailed ? (
+          <Button variant="outline" onClick={runScan} className="min-h-11">
+            再試行して同期を復帰
+          </Button>
+        ) : null}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -134,7 +140,7 @@ export default function DocumentsPage() {
             <CardTitle className="text-sm font-medium text-muted">生成完了</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold tabular-nums">{docHints.kpiComplete}</p>
+            <p className="text-3xl font-bold tabular-nums">{docHints.kpiComplete}</p>
             <Badge variant="success" className="mt-2">
               デモ値
             </Badge>
@@ -145,7 +151,7 @@ export default function DocumentsPage() {
             <CardTitle className="text-sm font-medium text-muted">要確認</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold tabular-nums">{docHints.kpiReview}</p>
+            <p className="text-3xl font-bold tabular-nums">{docHints.kpiReview}</p>
             <Badge variant="warning" className="mt-2">
               レビュー待ち
             </Badge>
@@ -156,7 +162,7 @@ export default function DocumentsPage() {
             <CardTitle className="text-sm font-medium text-muted">要フォロー</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold tabular-nums text-danger">{alerts}</p>
+            <p className="text-3xl font-bold tabular-nums text-danger">{alerts}</p>
             <Badge variant="danger" className="mt-2">
               パイプライン連動
             </Badge>
@@ -164,26 +170,36 @@ export default function DocumentsPage() {
         </Card>
       </div>
 
-      {blocked.length > 0 && (
+      {actionRows.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <FileText className="size-5" />
-              {profile.statusLabels.document_blocked}の{profile.labels.candidate}
+              要対応不備リスト
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {blocked.map((c) => (
-              <Link
-                key={c.id}
-                href={withIndustryQuery(`/candidates/${c.id}`, industry)}
-                className="block min-h-[52px] rounded-lg border border-border p-3 text-sm hover:bg-surface"
+            {actionRows.map((row) => (
+              <div
+                key={row.candidate.id}
+                className="flex flex-col gap-2 rounded-lg border border-border p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
               >
-                <span className="font-medium">{c.displayName}</span>
-                {c.documentAlertJa && (
-                  <p className="text-xs text-danger">{c.documentAlertJa}</p>
-                )}
-              </Link>
+                <div className="min-w-0">
+                  <p className="font-medium">{row.candidate.displayName}</p>
+                  <p className="text-xs text-danger">{row.reason}</p>
+                </div>
+                <div className="text-xs text-muted">
+                  期限: {row.dueDate}
+                </div>
+                <div className="text-xs text-muted">
+                  次アクション: {row.nextAction}
+                </div>
+                <Button size="sm" variant="secondary" asChild className="min-h-9">
+                  <Link href={withIndustryQuery(`/candidates/${row.candidate.id}`, industry)}>
+                    対応する
+                  </Link>
+                </Button>
+              </div>
             ))}
           </CardContent>
         </Card>

@@ -45,6 +45,15 @@ export default async function CandidateDetailPage({
   const match = assigned
     ? data.scoreCandidateForClient(c, assigned)
     : null;
+  const screeningTimeline =
+    c.screeningTimeline ??
+    [
+      { step: "応募受付", at: "2026-04-10", status: "done" as const },
+      { step: "書類選考", at: "2026-04-12", status: "done" as const },
+      { step: "一次面談", at: "2026-04-15", status: "done" as const },
+      { step: "最終面談", at: "2026-04-18", status: "in_progress" as const },
+    ];
+  const actionLabel = c.actionPlan?.primaryAction ?? "次アクションを確定";
 
   return (
     <TemplatePageStack>
@@ -93,7 +102,7 @@ export default async function CandidateDetailPage({
           )}
           <div className="flex flex-wrap gap-2">
             <DemoCompleteButton
-              label="AI査定を確定"
+              label="AI評価を確定"
               patch={{
                 selectedCandidateId: c.id,
                 selectedClientId: assigned?.id ?? null,
@@ -102,7 +111,7 @@ export default async function CandidateDetailPage({
                 proposalDraftStatus: "ready",
                 uiStates: { candidateProfiling: "success" },
               }}
-              successMessage="査定結果を次導線へ引き渡しました"
+              successMessage="AI評価を次導線へ引き渡しました"
             />
             <DemoKpiStrip keys={["proposalCycleHours"]} />
           </div>
@@ -115,12 +124,7 @@ export default async function CandidateDetailPage({
             <CardTitle className="text-base">選考履歴</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            {[
-              { step: "応募受付", at: "2026-04-10", status: "完了" },
-              { step: "書類選考", at: "2026-04-12", status: "完了" },
-              { step: "一次面談", at: "2026-04-15", status: "完了" },
-              { step: "最終面談", at: "2026-04-18", status: "調整中" },
-            ].map((row) => (
+            {screeningTimeline.map((row) => (
               <div
                 key={row.step}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
@@ -129,8 +133,20 @@ export default async function CandidateDetailPage({
                   <p className="font-medium">{row.step}</p>
                   <p className="text-xs text-muted">{row.at}</p>
                 </div>
-                <Badge variant={row.status === "調整中" ? "warning" : "success"}>
-                  {row.status}
+                <Badge
+                  variant={
+                    row.status === "in_progress"
+                      ? "warning"
+                      : row.status === "done"
+                        ? "success"
+                        : "secondary"
+                  }
+                >
+                  {row.status === "done"
+                    ? "完了"
+                    : row.status === "in_progress"
+                      ? "進行中"
+                      : "未着手"}
                 </Badge>
               </div>
             ))}
@@ -143,21 +159,26 @@ export default async function CandidateDetailPage({
           <CardContent className="space-y-3 text-sm">
             <div className="rounded-lg border border-border bg-surface p-3">
               <p className="font-medium text-foreground">候補者側</p>
-              <p className="text-muted">面談可能日時を本日中に3枠回答する。</p>
+              <p className="text-muted">
+                {c.actionPlan?.candidateTask ?? "面談可能日時を本日中に3枠回答する。"}
+              </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-3">
               <p className="font-medium text-foreground">企業側</p>
-              <p className="text-muted">一次面談評価を入力し、最終面談候補日を確定する。</p>
+              <p className="text-muted">
+                {c.actionPlan?.companyTask ??
+                  "一次面談評価を入力し、最終面談候補日を確定する。"}
+              </p>
             </div>
             <DemoCompleteButton
-              label="次アクションを確定"
+              label={actionLabel}
               patch={{
                 selectedCandidateId: c.id,
                 selectedClientId: assigned?.id ?? null,
-                followReasonLabel: "面談調整中",
+                followReasonLabel: c.actionPlan?.primaryAction ?? "面談調整中",
                 proposalDraftStatus: "drafting",
               }}
-              successMessage="選考ToDoを更新しました"
+              successMessage="次アクションを更新しました"
             />
           </CardContent>
         </Card>
@@ -201,6 +222,14 @@ export default async function CandidateDetailPage({
                 </div>
               </dl>
               <div>
+                {c.personaHeadline ? (
+                  <>
+                    <p className="text-muted">人物像</p>
+                    <p>{c.personaHeadline}</p>
+                  </>
+                ) : null}
+              </div>
+              <div>
                 <p className="text-muted">背景</p>
                 <p>{c.backgroundSummary}</p>
               </div>
@@ -208,6 +237,46 @@ export default async function CandidateDetailPage({
                 <p className="text-muted">学歴・職歴</p>
                 <p>{c.educationWorkHistory}</p>
               </div>
+              {c.achievementHighlights && c.achievementHighlights.length > 0 ? (
+                <div>
+                  <p className="text-muted">定量実績</p>
+                  <ul className="list-disc space-y-1 pl-4">
+                    {c.achievementHighlights.map((achievement) => (
+                      <li key={achievement}>{achievement}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {c.preferredConditions ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <p className="text-muted">希望年収</p>
+                    <p>{c.preferredConditions.desiredAnnualIncomeManYen ?? "-"} 万円</p>
+                  </div>
+                  <div>
+                    <p className="text-muted">働き方</p>
+                    <p>{c.preferredConditions.preferredWorkStyle ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted">希望勤務地</p>
+                    <p>{c.preferredConditions.preferredLocationJa ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted">入社可能時期</p>
+                    <p>{c.preferredConditions.availableFrom ?? "-"}</p>
+                  </div>
+                </div>
+              ) : null}
+              {c.riskNotes && c.riskNotes.length > 0 ? (
+                <div>
+                  <p className="text-muted">懸念点</p>
+                  <ul className="list-disc space-y-1 pl-4">
+                    {c.riskNotes.map((risk) => (
+                      <li key={risk}>{risk}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               <div className="flex flex-wrap gap-1">
                 {c.skillTags.map((t) => (
                   <Badge key={t} variant="secondary">
@@ -248,6 +317,22 @@ export default async function CandidateDetailPage({
             </CardHeader>
             <CardContent className="text-sm text-muted">
               <p>{cd.historyPlaceholder}</p>
+              {c.careerTimeline && c.careerTimeline.length > 0 ? (
+                <div className="mt-4 space-y-2">
+                  {c.careerTimeline.map((timeline) => (
+                    <div
+                      key={`${timeline.period}-${timeline.companyJa}`}
+                      className="rounded-lg border border-border bg-surface p-3 text-foreground"
+                    >
+                      <p className="text-xs text-muted">{timeline.period}</p>
+                      <p className="font-medium">
+                        {timeline.companyJa} / {timeline.roleJa}
+                      </p>
+                      <p className="text-sm text-muted">{timeline.summaryJa}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
               {c.plannedAssignment && assigned && (
                 <div className="mt-4 rounded-lg border border-border bg-surface p-4 text-foreground">
                   <p className="font-medium">{assigned.tradeNameJa}</p>
@@ -278,6 +363,12 @@ export default async function CandidateDetailPage({
                     </span>
                   </p>
                   <p className="leading-relaxed text-muted">{match.reason}</p>
+                  {c.recommendationCommentJa ? (
+                    <div className="rounded-lg border border-border bg-surface p-3">
+                      <p className="text-xs text-muted">推薦コメント</p>
+                      <p className="text-sm">{c.recommendationCommentJa}</p>
+                    </div>
+                  ) : null}
                 </>
               ) : (
                 <div className="space-y-2">
